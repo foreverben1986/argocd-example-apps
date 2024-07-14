@@ -1,0 +1,61 @@
+image:
+  registry: ford.jfrog.io
+  repository: cncdp-docker-preview/kubernetes-event-exporter
+  pullSecrets:
+  - artifactory-secret
+
+extraEnvVars:
+  - name: CLUSTER_NAME
+    valueFrom:
+      configMapKeyRef:
+        name: cluster-info-map
+        key: cluster-name
+  - name: LOKI_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiUser
+  - name: LOKI_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiPass
+  - name: LOKI_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiEndpoint
+
+config:
+  logLevel: warn
+  logFormat: json
+  maxEventAgeSeconds: 60
+  kubeQPS: 100
+  kubeBurst: 500
+  route:
+    routes:
+      - match:
+        - receiver: "loki"
+        drop:
+        - type: "Normal"
+  receivers:
+    - name: "loki"
+      webhook:
+        endpoint: "${LOKI_ENDPOINT}"
+        headers:
+          Content-Type: application/json
+          User-Agent: "kube-event-exporter"
+        layout:
+          streams:
+            - stream:
+                cluster: ${CLUSTER_NAME}
+                exporter: event-exporter
+                level: "{{ .Type }}"
+                reason: "{{ .Reason }}"
+                name: "{{ .InvolvedObject.Name }}"
+                namespace: "{{ .InvolvedObject.Namespace }}"
+                kind: "{{ .InvolvedObject.Kind }}"
+                host: "{{ .Source.Host }}"
+              values:
+                - - "{{ mul .GetTimestampMs 1000000 }}"
+                  - "severity={{ .Type }} namespace={{ .InvolvedObject.Namespace }} object={{ .InvolvedObject.Kind }}/{{ .InvolvedObject.Name }} reason={{ .Reason }} message={{ .Message }}"

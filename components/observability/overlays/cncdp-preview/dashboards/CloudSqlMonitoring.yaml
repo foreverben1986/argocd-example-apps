@@ -1,0 +1,1573 @@
+apiVersion: oss.grafana.crossplane.io/v1alpha1
+kind: Dashboard
+metadata:
+  name: cloudsql-monitoring-iac-dashboard
+spec:
+  providerConfigRef:
+    name: grafana-cloud-provider-config
+  forProvider:
+    folder: "Bedrock-IAC"
+    configJson: |
+      {
+        "annotations": {
+          "list": [
+            {
+              "builtIn": 1,
+              "datasource": {
+                "type": "datasource",
+                "uid": "grafana"
+              },
+              "enable": true,
+              "hide": true,
+              "iconColor": "rgba(0, 211, 255, 1)",
+              "name": "Annotations & Alerts",
+              "type": "dashboard"
+            }
+          ]
+        },
+        "editable": true,
+        "fiscalYearStartMonth": 0,
+        "graphTooltip": 0,
+        "id": 178,
+        "links": [],
+        "liveNow": false,
+        "panels": [
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "description": "",
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "bars",
+                  "fillOpacity": 100,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": true,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "normal"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "percent"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 0
+            },
+            "id": 1,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_COUNT_TRUE",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [
+                    "metric.label.state"
+                  ],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/instance_state",
+                  "perSeriesAligner": "ALIGN_NEXT_OLDER",
+                  "projectName": "$project",
+                  "valueType": "BOOL"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              }
+            ],
+            "title": "Instance state [COUNT]",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 0
+            },
+            "id": 2,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/up",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              }
+            ],
+            "title": "Server up",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 8
+            },
+            "id": 3,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/cpu/reserved_cores",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "DOUBLE"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              }
+            ],
+            "title": "Total CPU reserved cores",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 8
+            },
+            "id": 4,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_95",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/cpu/utilization",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "10^2.%",
+                  "valueType": "DOUBLE"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_05",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/cpu/utilization",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "10^2.%",
+                  "valueType": "DOUBLE"
+                },
+                "queryType": "metrics",
+                "refId": "B"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_50",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/cpu/utilization",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "10^2.%",
+                  "valueType": "DOUBLE"
+                },
+                "queryType": "metrics",
+                "refId": "C"
+              }
+            ],
+            "title": "CPU utilization [95/50/5 PERCENTILE]",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 16
+            },
+            "id": 5,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/memory/quota",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "By",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/memory/usage",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "By",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "B"
+              }
+            ],
+            "title": "Total Memory quota, Memory usage",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 16
+            },
+            "id": 6,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_95",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/memory/utilization",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "DOUBLE"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_05",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/memory/utilization",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "DOUBLE"
+                },
+                "queryType": "metrics",
+                "refId": "B"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_50",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/memory/utilization",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "DOUBLE"
+                },
+                "queryType": "metrics",
+                "refId": "C"
+              }
+            ],
+            "title": "Memory utilization [95/50/5 PERCENTILE]",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 24
+            },
+            "id": 7,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/disk/quota",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "By",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/disk/bytes_used",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "By",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "B"
+              }
+            ],
+            "title": "Total Disk quota, Bytes used",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 24
+            },
+            "id": 8,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_95",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/disk/utilization",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "DOUBLE"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_05",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/disk/utilization",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "DOUBLE"
+                },
+                "queryType": "metrics",
+                "refId": "B"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_50",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "GAUGE",
+                  "metricType": "cloudsql.googleapis.com/database/disk/utilization",
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "DOUBLE"
+                },
+                "queryType": "metrics",
+                "refId": "C"
+              }
+            ],
+            "title": "Disk utilization [95/50/5 PERCENTILE]",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short",
+                "unitScale": true
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 32
+            },
+            "id": 9,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_95",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "DELTA",
+                  "metricType": "cloudsql.googleapis.com/database/disk/read_ops_count",
+                  "perSeriesAligner": "ALIGN_RATE",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_05",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "DELTA",
+                  "metricType": "cloudsql.googleapis.com/database/disk/read_ops_count",
+                  "perSeriesAligner": "ALIGN_RATE",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "B"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_50",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "DELTA",
+                  "metricType": "cloudsql.googleapis.com/database/disk/read_ops_count",
+                  "perSeriesAligner": "ALIGN_RATE",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "C"
+              }
+            ],
+            "title": "Disk read IO [95/50/5 PERCENTILE]",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short",
+                "unitScale": true
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 32
+            },
+            "id": 10,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_95",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "DELTA",
+                  "metricType": "cloudsql.googleapis.com/database/disk/write_ops_count",
+                  "perSeriesAligner": "ALIGN_RATE",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_05",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "DELTA",
+                  "metricType": "cloudsql.googleapis.com/database/disk/write_ops_count",
+                  "perSeriesAligner": "ALIGN_RATE",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "B"
+              },
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_50",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "cloudsql_database"
+                  ],
+                  "groupBys": [],
+                  "metricKind": "DELTA",
+                  "metricType": "cloudsql.googleapis.com/database/disk/write_ops_count",
+                  "perSeriesAligner": "ALIGN_RATE",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "C"
+              }
+            ],
+            "title": "Disk write IO [95/50/5 PERCENTILE]",
+            "type": "timeseries"
+          }
+        ],
+        "refresh": "",
+        "schemaVersion": 39,
+        "tags": [],
+        "templating": {
+          "list": [
+            {
+              "current": {
+                "selected": false,
+                "text": "Google Cloud Monitoring",
+                "value": "def7a167-4198-4459-b2de-32382e903bed"
+              },
+              "hide": 0,
+              "includeAll": false,
+              "label": "Datasource",
+              "multi": false,
+              "name": "datasource",
+              "options": [],
+              "query": "stackdriver",
+              "queryValue": "",
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "type": "datasource"
+            },
+            {
+              "current": {
+                "selected": false,
+                "text": "cvc-assets-service-preview",
+                "value": "cvc-assets-service-preview"
+              },
+              "datasource": {
+                "uid": "$datasource"
+              },
+              "definition": "Google Cloud Monitoring - Projects",
+              "hide": 0,
+              "includeAll": false,
+              "label": "Project",
+              "multi": false,
+              "name": "project",
+              "options": [],
+              "query": {
+                "labelKey": "",
+                "loading": false,
+                "projectName": "$project",
+                "projects": [],
+                "selectedMetricType": "actions.googleapis.com/smarthome_action/num_active_users",
+                "selectedQueryType": "projects",
+                "selectedSLOService": "",
+                "selectedService": "actions.googleapis.com",
+                "sloServices": []
+              },
+              "refresh": 1,
+              "regex": "^(?!.*prj-bdrck*).*$",
+              "skipUrlSync": false,
+              "sort": 0,
+              "tagValuesQuery": "",
+              "tagsQuery": "",
+              "type": "query",
+              "useTags": false
+            },
+            {
+              "current": {
+                "selected": false,
+                "text": "grafana auto",
+                "value": "grafana-auto"
+              },
+              "datasource": {
+                "uid": "$${datasource}"
+              },
+              "definition": "",
+              "hide": 2,
+              "includeAll": false,
+              "label": "Alignment Period",
+              "multi": false,
+              "name": "alignmentPeriod",
+              "options": [],
+              "query": {
+                "labelKey": "",
+                "loading": false,
+                "projectName": "$project",
+                "projects": [
+                  {
+                    "label": "cvc-assets-service-preview",
+                    "value": "cvc-assets-service-preview"
+                  },
+                  {
+                    "label": "cvc-account-service-preview",
+                    "value": "cvc-account-service-preview"
+                  },
+                  {
+                    "label": "cvc-data-key-service-preview",
+                    "value": "cvc-data-key-service-preview"
+                  },
+                  {
+                    "label": "cvc-iam-preview",
+                    "value": "cvc-iam-preview"
+                  },
+                  {
+                    "label": "cvc-homing-pigeon-preview",
+                    "value": "cvc-homing-pigeon-preview"
+                  },
+                  {
+                    "label": "cvc-sw-access-service-preview",
+                    "value": "cvc-sw-access-service-preview"
+                  },
+                  {
+                    "label": "prj-bdrck-live-wrkld",
+                    "value": "prj-bdrck-live-wrkld-a12c"
+                  },
+                  {
+                    "label": "prj-bdrck-preview-wrkld",
+                    "value": "prj-bdrck-preview-wrkld"
+                  },
+                  {
+                    "label": "prj-bdrck-live-ctrlpln",
+                    "value": "prj-bdrck-live-ctrlpln-7748"
+                  },
+                  {
+                    "label": "prj-bdrck-preview-ctrlpln",
+                    "value": "prj-bdrck-preview-ctrlpln"
+                  }
+                ],
+                "refId": "CloudMonitoringVariableQueryEditor-VariableQuery",
+                "selectedMetricType": "actions.googleapis.com/smarthome_action/num_active_users",
+                "selectedQueryType": "alignmentPeriods",
+                "selectedSLOService": "",
+                "selectedService": "actions.googleapis.com",
+                "sloServices": []
+              },
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 0,
+              "tagValuesQuery": "",
+              "tagsQuery": "",
+              "type": "query",
+              "useTags": false
+            }
+          ]
+        },
+        "time": {
+          "from": "now-24h",
+          "to": "now"
+        },
+        "timeRangeUpdatedDuringEditOrView": false,
+        "timepicker": {},
+        "timezone": "",
+        "title": "CloudSQL Monitoring",
+        "uid": "c830e5d3-60f7-4c97-bb95-81dc808d2fb4A",
+        "weekStart": ""
+      }

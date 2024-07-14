@@ -1,0 +1,217 @@
+mode: deployment
+
+replicaCount: 1
+
+presets:
+  kubernetesAttributes:
+    enabled: true
+
+resources:
+  limits:
+    cpu: 3000m
+    memory: 3Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  behavior: {}
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+extraEnvs:
+# Should be around 80% of memory hard limit
+  - name: GOMEMLIMIT
+    value: 2400MiB
+  - name: CLUSTER_NAME
+    valueFrom:
+      configMapKeyRef:
+        name: cluster-info-map
+        key: cluster-name
+  - name: MIMIR_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirUser
+  - name: MIMIR_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirPass
+  - name: MIMIR_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirEndpoint
+
+clusterRole:
+  rules:
+  - apiGroups:
+    - ''
+    resources:
+    - 'services'
+    - 'events'
+    - 'namespaces'
+    - 'namespaces/status'
+    - 'nodes'
+    - 'nodes/spec'
+    - 'pods'
+    - 'pods/status'
+    - 'replicationcontrollers'
+    - 'replicationcontrollers/status'
+    - 'resourcequotas'
+    - 'nodes/proxy'
+    - 'endpoints'
+    verbs:
+    - 'get'
+    - 'list'
+    - 'watch'
+  - apiGroups:
+    - apps
+    resources:
+    - 'daemonsets'
+    - 'deployments'
+    - 'replicasets'
+    - 'statefulsets'
+    verbs:
+    - 'get'
+    - 'list'
+    - 'watch'
+  - apiGroups:
+    - extensions
+    resources:
+    - daemonsets
+    - deployments
+    - replicasets
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - batch
+    resources:
+    - jobs
+    - cronjobs
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - autoscaling
+    resources:
+    - horizontalpodautoscalers
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - 'events.k8s.io'
+    resources:
+    - events
+    verbs:
+    - watch
+  - nonResourceURLs:
+    - /metrics
+    verbs:
+    - get
+
+config:
+  receivers:
+
+    prometheus:
+      config:
+        scrape_configs:
+        - job_name: otel-col-instrumentation-gateway-metrics
+          scrape_interval: 60s
+          static_configs:
+            - targets:
+                - ${MY_POD_IP}:8888
+
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  extensions:
+    basicauth/metrics:
+      client_auth:
+        username: "${MIMIR_USER}"
+        password: "${MIMIR_PASS}"
+
+  exporters:
+    prometheusremotewrite:
+      external_labels:
+        cluster: "${CLUSTER_NAME}"
+      endpoint: "${MIMIR_ENDPOINT}"
+      auth:
+        authenticator: basicauth/metrics
+      resource_to_telemetry_conversion:
+        enabled: true
+      target_info:
+        enabled: true
+
+    loadbalancing/traces:
+      protocol:
+        otlp:
+          sending_queue:
+            queue_size: 10000
+          retry_on_failure:
+             max_elapsed_time: 600s # default 300s
+          tls:
+            insecure: true
+      resolver:
+        dns:
+          hostname: bdrck-traces-gateway-otel-col-headless-ctrlpln.observability.svc.cluster.local
+          port: 4317
+
+    debug:
+      verbosity: detailed
+
+  processors:
+    transform:
+      error_mode: ignore
+      metric_statements:
+        - context: metric
+          statements:
+            - delete_key(resource.attributes, "k8s.pod.start_time")
+            - delete_key(resource.attributes, "k8s.pod.uid")
+
+    memory_limiter/metrics:
+      check_interval: 1s
+      limit_percentage: 85
+      spike_limit_percentage: 10
+
+    memory_limiter/traces:
+      check_interval: 1s
+      limit_percentage: 85
+      spike_limit_percentage: 10
+
+    batch/metrics:
+      send_batch_size: 10000
+      send_batch_max_size: 12000
+      timeout: 600ms
+
+    batch/traces:
+      send_batch_size: 10000
+      send_batch_max_size: 12000
+      timeout: 600ms
+
+  service:
+    extensions: [basicauth/metrics, health_check, memory_ballast]
+    pipelines:
+      metrics:
+        receivers: [otlp, prometheus]
+        processors: [memory_limiter/metrics, k8sattributes, batch/metrics]
+        exporters: [prometheusremotewrite]
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter/traces, k8sattributes, batch/traces]
+        exporters: [loadbalancing/traces, debug]
+    telemetry:
+      metrics:
+        level: detailed
+        address: ":8888"
+      logs:
+        encoding: json

@@ -1,0 +1,74 @@
+apiVersion: alerting.grafana.crossplane.io/v1alpha1
+kind: RuleGroup
+metadata:
+  annotations:
+    meta.upbound.io/example-id: kubevela-rg
+  labels:
+    testing.upbound.io/example-name: kubevela-rg
+  name: kubevela
+spec:
+  providerConfigRef:
+    name: grafana-cloud-provider-config
+  forProvider:
+    folderSelector:
+      matchLabels:
+        testing.upbound.io/example-name: jedi
+    orgId: "1"
+    intervalSeconds: 120
+    name: kubevela
+    rule:
+    - annotations:
+        description: "https://kubevela.cncdp-preview.ford.com.cn/"
+        summary: "Some applicaton delopoy failure"
+      condition: C
+      data:
+      - datasourceUid: "prometheus"
+        model: "{\"disableTextWrap\":false,\"editorMode\":\"builder\",\"expr\":\"sum by(phase, cluster) (application_phase_number{phase=\\\"workflowFailed\\\"})\",\"fullMetaSearch\":false,\"includeNullMetadata\":true,\"instant\":true,\"intervalMs\":1000,\"legendFormat\":\"__auto\",\"maxDataPoints\":43200,\"range\":false,\"refId\":\"A\",\"useBackend\":false}"
+        queryType: ""
+        refId: A
+        relativeTimeRange:
+        - from: 300
+          to: 0
+      - datasourceUid: "__expr__"
+        model:  "{\"conditions\":[{\"evaluator\":{\"params\":[0],\"type\":\"gt\"},\"operator\":{\"type\":\"and\"},\"query\":{\"params\":[\"C\"]},\"reducer\":{\"params\":[],\"type\":\"last\"},\"type\":\"query\"}],\"datasource\":{\"type\":\"__expr__\",\"uid\":\"__expr__\"},\"expression\":\"A\",\"intervalMs\":1000,\"maxDataPoints\":43200,\"refId\":\"C\",\"type\":\"threshold\"}"
+        queryType: ""
+        refId: C
+        relativeTimeRange:
+        - from: 0
+          to: 0
+      noDataState: "NoData"
+      execErrState: "Error"
+      for: 2m
+      isPaused: false
+      name: KubeVelaWorkflowFailure
+      labels: 
+        env: "preview"
+        team: "jedi"
+    #applicaton process is slow
+    - annotations:
+        description: "The consumption rate is slower than the production rate by *{{$values.A.Value}}* per second."
+        summary: "The consumption rate is slower than the production rate."
+      condition: C
+      data:
+      - datasourceUid: "prometheus"
+        model: "{\"editorMode\":\"code\",\"expr\":\"sum(rate(workqueue_adds_total{name=\\\"application\\\"}[5m])) by (cluster)\\n-\\nsum(rate(controller_runtime_reconcile_total{controller=\\\"application\\\"}[5m])) by (cluster)\\n\",\"instant\":true,\"intervalMs\":1000,\"legendFormat\":\"__auto\",\"maxDataPoints\":43200,\"range\":false,\"refId\":\"A\"}"
+        queryType: ""
+        refId: A
+        relativeTimeRange:
+        - from: 300
+          to: 0
+      - datasourceUid: "__expr__"
+        model:  "{\"conditions\":[{\"evaluator\":{\"params\":[5],\"type\":\"gt\"},\"operator\":{\"type\":\"and\"},\"query\":{\"params\":[\"C\"]},\"reducer\":{\"params\":[],\"type\":\"last\"},\"type\":\"query\"}],\"datasource\":{\"type\":\"__expr__\",\"uid\":\"__expr__\"},\"expression\":\"A\",\"intervalMs\":1000,\"maxDataPoints\":43200,\"refId\":\"C\",\"type\":\"threshold\"}"
+        queryType: ""
+        refId: C
+        relativeTimeRange:
+        - from: 0
+          to: 0
+      noDataState: "NoData"
+      execErrState: "Error"
+      for: 2m
+      isPaused: false
+      name: ApplicationProcessSpeedSlow
+      labels: 
+        env: "preview"
+        team: "jedi"

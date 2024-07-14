@@ -1,0 +1,38 @@
+apiVersion: oss.grafana.crossplane.io/v1alpha1
+kind: Folder
+metadata:
+  name: bedrock-iac-folder
+spec:
+  forProvider:
+    title: "Bedrock-IAC"
+    uid: "Bedrock-IAC"
+  providerConfigRef:
+    name:  grafana-cloud-provider-config
+
+---
+
+apiVersion: oss.grafana.crossplane.io/v1alpha1
+kind: FolderPermission
+metadata:
+  name: bedrock-folder-permission
+spec:
+  forProvider:
+    folderRef:
+      name: Bedrock-IAC
+    permissions:
+      - permission: "Admin"
+        role: "Editor"
+  providerConfigRef:
+    name:  grafana-cloud-provider-config
+
+---
+apiVersion: oss.grafana.crossplane.io/v1alpha1
+kind: Folder
+metadata:
+  name: log-query
+  namespace: grafana-stack
+spec:
+  forProvider:
+    title: log-query
+  providerConfigRef:
+     name: grafana-cloud-provider-config

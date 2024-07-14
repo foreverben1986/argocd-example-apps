@@ -1,0 +1,10 @@
+image:
+  repository: ford.jfrog.io/cncdp-docker-preview/external/docker.io/otel/opentelemetry-collector-contrib
+  pullPolicy: Always
+imagePullSecrets:
+- name: artifactory-secret
+resources:
+  requests:
+    cpu: 250m
+    memory: 128Mi
+priorityClassName: system-node-critical

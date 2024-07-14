@@ -1,0 +1,7 @@
+image:
+  registry: ford.jfrog.io
+  repository: cncdp-docker-preview/node-exporter
+imagePullSecrets:
+- name: artifactory-secret
+nodeSelector:
+

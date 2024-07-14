@@ -1,0 +1,264 @@
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+
+mode: deployment
+
+replicaCount: 2
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 3Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  behavior: {}
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+extraEnvs:
+# Should be around 80% of memory hard limit
+  - name: GOMEMLIMIT
+    value: 1600MiB
+  - name: CLUSTER_NAME
+    valueFrom:
+      configMapKeyRef:
+        name: cluster-info-map
+        key: cluster-name
+  - name: MIMIR_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirUser
+  - name: MIMIR_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirPass
+  - name: MIMIR_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirEndpoint
+  - name: POD_UID
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: metadata.uid
+
+
+config:
+  extensions:
+    basicauth/metrics:
+      client_auth:
+        username: "${MIMIR_USER}"
+        password: "${MIMIR_PASS}"
+
+  connectors:
+    spanmetrics:
+      metrics_flush_interval: 60s
+      histogram:
+        unit: s
+        explicit:
+          buckets: [2ms, 4ms, 6ms, 8ms, 10ms, 50ms, 100ms, 200ms, 400ms, 800ms, 1s, 1400ms, 2s, 5s, 10s, 15s]
+      dimensions:
+        - name: http.method
+        - name: http.status_code
+        - name: http.route
+        - name: service.namespace
+        - name: service.version
+      dimensions_cache_size: 1000
+      resource_metrics_key_attributes:
+        - http.method
+        - http.status_code
+        - http.route
+        - service.namespace
+        - service.version
+        - service.name
+        - span.name
+        - span.kind
+        - status.code
+#       exemplars:
+#         enabled: true
+
+    spanmetrics/cicd:
+      metrics_flush_interval: 60s
+      histogram:
+        unit: s
+        explicit:
+          buckets: [400ms, 1s, 1400ms, 2s, 5s, 10s, 15s, 30s, 1m, 2m, 4m, 8m, 12m, 15m, 20m, 25m]
+      dimensions:
+        - name: service.namespace
+        - name: service.version
+        - name: github.repo
+        - name: github.event
+        - name: github.conclusion
+      dimensions_cache_size: 1000
+      resource_metrics_key_attributes:
+        - service.namespace
+        - service.version
+        - github.repo
+        - github.event
+        - github.conclusion
+        - service.name
+        - span.name
+        - span.kind
+        - status.code
+#       exemplars:
+#         enabled: true
+
+  receivers:
+    prometheus:
+      config:
+        scrape_configs:
+        - job_name: otel-col-span-metrics-gateway-metrics
+          scrape_interval: 15s
+          static_configs:
+            - targets:
+                - ${MY_POD_IP}:8888
+
+  exporters:
+    prometheusremotewrite/spanmetrics:
+      external_labels:
+        cluster: "${CLUSTER_NAME}"
+        __metrics_gen_instance: "${POD_UID}"
+      endpoint: "${MIMIR_ENDPOINT}"
+      auth:
+        authenticator: basicauth/metrics
+
+    prometheusremotewrite:
+      external_labels:
+        cluster: "${CLUSTER_NAME}"
+      endpoint: "${MIMIR_ENDPOINT}"
+      auth:
+        authenticator: basicauth/metrics
+      resource_to_telemetry_conversion:
+        enabled: true
+      target_info:
+        enabled: true
+
+    debug:
+      verbosity: detailed
+
+  processors:
+    filter/cicd:
+      error_mode: ignore
+      metrics:
+        datapoint:
+          - 'attributes["service.namespace"] != "bedrock-cli"'
+
+    transform/use_grafana_metric_names:
+      error_mode: ignore
+      metric_statements:
+        - context: metric
+          statements:
+            - set(name, "traces.spanmetrics.latency") where name == "traces.spanmetrics.duration"
+            - set(name, "traces.spanmetrics.calls.total") where name == "traces.spanmetrics.calls"
+
+
+    transform/drop_unneeded_resource_attributes:
+      error_mode: ignore
+      trace_statements:
+        - context: resource
+          statements:
+            - set(attributes["service.namespace"], attributes["k8s.namespace.name"])
+            - delete_key(attributes, "k8s.node.name")
+            - delete_key(attributes, "k8s.pod.ip")
+            - delete_key(attributes, "k8s.pod.name")
+            - delete_key(attributes, "k8s.namespace.name")
+            - delete_key(attributes, "k8s.pod.start_time")
+            - delete_key(attributes, "os.description")
+            - delete_key(attributes, "os.type")
+            - delete_key(attributes, "process.command_args")
+            - delete_key(attributes, "process.executable.path")
+            - delete_key(attributes, "process.pid")
+            - delete_key(attributes, "process.runtime.description")
+            - delete_key(attributes, "process.runtime.name")
+            - delete_key(attributes, "process.runtime.version")
+
+    filter/drop_unneeded_span_metrics:
+      error_mode: ignore
+      metrics:
+        datapoint:
+          - 'IsMatch(metric.name, "calls|duration") and IsMatch(attributes["span.kind"], "SPAN_KIND_INTERNAL|SPAN_KIND_CLIENT|SPAN_KIND_PRODUCER")'
+
+    transform/collector:
+      error_mode: ignore
+      metric_statements:
+        - context: metric
+          statements:
+            - delete_key(resource.attributes, "container.id")
+            - delete_key(resource.attributes, "host.arch")
+            - delete_key(resource.attributes, "host.name")
+            - delete_key(resource.attributes, "k8s.pod.uid")
+            - delete_key(resource.attributes, "k8s.replicaset.name")
+#             - delete_key(resource.attributes, "telemetry.auto.version")
+#             - delete_key(resource.attributes, "telemetry.sdk.language")
+#             - delete_key(resource.attributes, "telemetry.sdk.name")
+#             - delete_key(resource.attributes, "telemetry.sdk.version")
+            - delete_key(resource.attributes, "process.command_line")
+
+    memory_limiter:
+      check_interval: 1s
+      limit_percentage: 85
+      spike_limit_percentage: 10
+
+    batch:
+      send_batch_size: 10000
+      send_batch_max_size: 12000
+      timeout: 200ms
+
+    transform/spanmetrics:
+      error_mode: ignore
+      metric_statements:
+        - context: metric
+          statements:
+            - delete_key(resource.attributes, "container.id")
+            - delete_key(resource.attributes, "host.arch")
+            - delete_key(resource.attributes, "host.name")
+            - delete_key(resource.attributes, "k8s.pod.uid")
+            - delete_key(resource.attributes, "k8s.replicaset.name")
+            - delete_key(resource.attributes, "process.command_line")
+
+  service:
+    telemetry:
+      logs:
+        encoding: json
+      metrics:
+        level: detailed
+        address: ":8888"
+    extensions: [ basicauth/metrics, health_check ]
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, transform/drop_unneeded_resource_attributes, batch]
+        exporters: [spanmetrics]
+      traces/cicd:
+        receivers: [otlp]
+        processors: [memory_limiter, transform/drop_unneeded_resource_attributes, batch]
+        exporters: [spanmetrics/cicd]
+      metrics:
+        receivers: [prometheus]
+        processors: [memory_limiter, transform/collector, batch]
+        exporters: [prometheusremotewrite]
+      metrics/cicd:
+        receivers: [spanmetrics/cicd]
+        processors: [ transform/spanmetrics
+          ,  filter/cicd
+          , batch]
+        exporters: [prometheusremotewrite/spanmetrics]
+      metrics/spanmetrics:
+        receivers: [spanmetrics]
+        processors: [
+        # (@rlankfo) note that the memory_limiter could result in dropped spanmetrics
+        # (@vmatos9) disabling memory_limiter as the Traces Pipeline already have it.
+#             memory_limiter,
+            filter/drop_unneeded_span_metrics,
+#             transform/use_grafana_metric_names,
+            transform/spanmetrics,
+            batch,
+          ]
+        exporters: [prometheusremotewrite/spanmetrics]

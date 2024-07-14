@@ -1,0 +1,215 @@
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+mode: deployment
+
+replicaCount: 3
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 3Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 6
+  behavior: {}
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+extraEnvs:
+# Should be around 80% of memory hard limit
+  - name: GOMEMLIMIT
+    value: 1600MiB
+  - name: CLUSTER_NAME
+    valueFrom:
+      configMapKeyRef:
+        name: cluster-info-map
+        key: cluster-name
+  - name: TEMPO_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: tempoUser
+  - name: TEMPO_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: tempoPass
+  - name: MIMIR_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirUser
+  - name: MIMIR_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirPass
+  - name: TEMPO_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: tempoEndpoint
+  - name: MIMIR_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirEndpoint
+
+config:
+  extensions:
+    basicauth/traces:
+      client_auth:
+        username: "${TEMPO_USER}"
+        password: "${TEMPO_PASS}"
+    basicauth/metrics:
+      client_auth:
+        username: "${MIMIR_USER}"
+        password: "${MIMIR_PASS}"
+
+  connectors:
+    servicegraph:
+      dimensions:
+        - service.namespace
+        - service.version
+        - cluster
+
+  receivers:
+    prometheus:
+      config:
+        scrape_configs:
+        - job_name: otel-col-traces-gateway-metrics
+          scrape_interval: 15s
+          static_configs:
+            - targets:
+                - ${MY_POD_IP}:8888
+
+  exporters:
+    otlp:
+      endpoint: "${TEMPO_ENDPOINT}"
+      tls:
+        insecure: true
+      sending_queue:
+        num_consumers: 4
+        queue_size: 10000
+      retry_on_failure:
+        enabled: true
+        max_elapsed_time: 600s # default 300s
+
+    prometheusremotewrite:
+      external_labels:
+        cluster: "${CLUSTER_NAME}"
+      endpoint: "${MIMIR_ENDPOINT}"
+      auth:
+        authenticator: basicauth/metrics
+      resource_to_telemetry_conversion:
+        enabled: true
+      target_info:
+        enabled: true
+
+    loadbalancing/metrics:
+      routing_key: "service"
+      protocol:
+        otlp:
+          sending_queue:
+            queue_size: 10000
+          retry_on_failure:
+            max_elapsed_time: 600s # default 300s
+          tls:
+            insecure: true
+      resolver:
+        dns:
+          hostname: bdrck-span-metrics-gateway-otel-col-headless-ctrlpln.observability.svc.cluster.local
+          port: 4317
+
+    debug:
+      verbosity: detailed
+
+  processors:
+    memory_limiter:
+      check_interval: 1s
+      limit_percentage: 85
+      spike_limit_percentage: 10
+
+    batch:
+      send_batch_size: 10000
+      send_batch_max_size: 12000
+      timeout: 200ms
+
+    transform:
+      error_mode: ignore
+      trace_statements:
+        - context: span
+          statements:
+            - set(resource.attributes["cluster"], "${CLUSTER_NAME}")
+            - set(attributes["cluster"], "${CLUSTER_NAME}")
+            - set(resource.attributes["service.namespace"], resource.attributes["k8s.namespace.name"])
+            - delete_key(resource.attributes, "k8s.namespace.name")
+            - delete_key(resource.attributes, "container.id")
+            - delete_key(resource.attributes, "host.arch")
+            - delete_key(resource.attributes, "host.name")
+            - delete_key(resource.attributes, "k8s.pod.start_time")
+            - delete_key(resource.attributes, "k8s.pod.uid")
+            - delete_key(resource.attributes, "k8s.replicaset.name")
+            - delete_key(resource.attributes, "os.description")
+            - delete_key(resource.attributes, "os.type")
+            - delete_key(resource.attributes, "process.command_args")
+            - delete_key(resource.attributes, "process.executable.path")
+            - delete_key(resource.attributes, "process.pid")
+            - delete_key(resource.attributes, "process.runtime.description")
+            - delete_key(resource.attributes, "process.runtime.name")
+            - delete_key(resource.attributes, "process.runtime.version")
+            - delete_key(resource.attributes, "telemetry.auto.version")
+            - delete_key(resource.attributes, "telemetry.sdk.language")
+            - delete_key(resource.attributes, "telemetry.sdk.name")
+            - delete_key(resource.attributes, "telemetry.sdk.version")
+
+    tail_sampling:
+      decision_wait: 15s
+      num_traces: 600000
+      expected_new_traces_per_sec: 1000
+      policies:
+        [
+          {
+            name: health-check-policy,
+            type: string_attribute,
+            string_attribute:
+              {
+                key: http.route,
+                values: [\/readyz, \/health],
+                enabled_regex_matching: true,
+                invert_match: true
+              },
+          },
+          {
+            name: health-check-policy-url,
+            type: string_attribute,
+            string_attribute:
+              {
+                key: http.url,
+                values: [\/readyz, \/health],
+                enabled_regex_matching: true,
+                invert_match: true
+              },
+          },
+        ]
+
+  service:
+    telemetry:
+      logs:
+        encoding: json
+      metrics:
+        level: detailed
+        address: ":8888"
+    extensions: [basicauth/traces, basicauth/metrics, health_check ]
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, transform, tail_sampling, batch]
+        exporters: [otlp,servicegraph,loadbalancing/metrics]
+      metrics:
+        receivers: [prometheus, servicegraph]
+        processors: [memory_limiter, batch]
+        exporters: [prometheusremotewrite]

@@ -1,0 +1,299 @@
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+
+mode: deployment
+
+replicaCount: 1
+
+presets:
+  kubernetesAttributes:
+    enabled: true
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 1Gi
+
+extraEnvs:
+# Should be around 80% of memory hard limit
+  - name: GOMEMLIMIT
+    value: 800MiB
+  - name: CLUSTER_NAME
+    valueFrom:
+      configMapKeyRef:
+        name: cluster-info-map
+        key: cluster-name
+  - name: MIMIR_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirUser
+  - name: MIMIR_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirPass
+  - name: LOKI_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiUser
+  - name: LOKI_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiPass
+  - name: LOKI_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiEndpoint
+  - name: MIMIR_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirEndpoint
+  - name: MONGODB_CTRLPLN_PUBLIC_KEY
+    valueFrom:
+      secretKeyRef:
+        name: mongodb-grafana
+        key: mongodbPublickey
+  - name: MONGODB_CTRLPLN_PRIVATE_KEY
+    valueFrom:
+      secretKeyRef:
+        name: mongodb-grafana
+        key: mongodbPrivatekey
+  - name: PULSAR_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: pulsar-client
+        key: pulsarClientsecret
+  - name: PULSAR_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: pulsar-client
+        key: pulsarClientid
+  - name: GITHUB_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: observability-github-secret
+        key: observability-github-token
+
+clusterRole:
+  rules:
+  - apiGroups:
+    - ''
+    resources:
+    - 'services'
+    - 'events'
+    - 'namespaces'
+    - 'namespaces/status'
+    - 'nodes'
+    - 'nodes/spec'
+    - 'pods'
+    - 'pods/status'
+    - 'replicationcontrollers'
+    - 'replicationcontrollers/status'
+    - 'resourcequotas'
+    - 'nodes/proxy'
+    - 'endpoints'
+    verbs:
+    - 'get'
+    - 'list'
+    - 'watch'
+  - apiGroups:
+    - apps
+    resources:
+    - 'daemonsets'
+    - 'deployments'
+    - 'replicasets'
+    - 'statefulsets'
+    verbs:
+    - 'get'
+    - 'list'
+    - 'watch'
+  - apiGroups:
+    - extensions
+    resources:
+    - daemonsets
+    - deployments
+    - replicasets
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - batch
+    resources:
+    - jobs
+    - cronjobs
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - autoscaling
+    resources:
+    - horizontalpodautoscalers
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - 'events.k8s.io'
+    resources:
+    - events
+    verbs:
+    - watch
+  - nonResourceURLs:
+    - /metrics
+    verbs:
+    - get
+
+config:
+  receivers:
+#     gitprovider:
+#       initial_delay: 1s
+#       collection_interval: 60s
+#       scrapers:
+#         github:
+#           github_org: ford-innersource
+#           search_query: "topic:bedrock-managed-repo org:ford-innersource"
+#           endpoint: "https://github.com"
+#           auth:
+#             authenticator: bearertokenauth/github
+
+    mongodbatlas:
+      public_key: ${MONGODB_CTRLPLN_PUBLIC_KEY}
+      private_key: ${MONGODB_CTRLPLN_PRIVATE_KEY}
+      logs:
+        enabled: true
+        projects:
+        - name: 'bedrock-control-plane-preview'
+          include_clusters: [kubevlea]
+          access_logs:
+            enabled: true
+            auth_result: true
+            poll_interval: 1m
+          collect_audit_logs: true
+          collect_host_logs: true
+      events:
+        projects:
+          - name: bedrock-control-plane-preview
+            include_clusters: [kubevlea]
+        organizations:
+          - id: 64fb2f7dcb80130bf2d4b5f4
+        poll_interval: 1m
+        page_size: 100
+        max_pages: 50
+      resource_attributes:
+        mongodb_atlas.cluster.name:
+          enabled: true
+
+    prometheus:
+      config:
+        scrape_configs:
+        - job_name: otel-col-platform-gateway-metrics
+          scrape_interval: 15s
+          static_configs:
+            - targets:
+                - ${MY_POD_IP}:8888
+        - job_name: streamnative-cvc
+          metrics_path: /cloud/metrics/export
+          scheme: https
+          oauth2:
+            client_id: ${PULSAR_CLIENT_ID}
+            client_secret: ${PULSAR_CLIENT_SECRET}
+            token_url: https://auth.streamnative.cloud/oauth/token
+            endpoint_params:
+              grant_type: 'client_credentials'
+              audience: 'urn:sn:pulsar:o-livi9:bdrck-cvc-pulsar-preview'
+          static_configs:
+            - targets: [metrics.streamnative.cloud]
+        - job_name: streamnative-elps
+          metrics_path: /cloud/metrics/export
+          scheme: https
+          oauth2:
+            client_id: ${PULSAR_CLIENT_ID}
+            client_secret: ${PULSAR_CLIENT_SECRET}
+            token_url: https://auth.streamnative.cloud/oauth/token
+            endpoint_params:
+              grant_type: 'client_credentials'
+              audience: 'urn:sn:pulsar:o-livi9:bdrkc-elps-pulsar-preview'
+          static_configs:
+            - targets: [metrics.streamnative.cloud]
+
+  extensions:
+    bearertokenauth/github:
+        token: ${GITHUB_TOKEN}
+
+    basicauth/metrics:
+      client_auth:
+        username: "${MIMIR_USER}"
+        password: "${MIMIR_PASS}"
+
+    basicauth/logs:
+      client_auth:
+        username: "${LOKI_USER}"
+        password: "${LOKI_PASS}"
+
+  exporters:
+    prometheusremotewrite:
+      external_labels:
+        cluster: "${CLUSTER_NAME}"
+      endpoint: "${MIMIR_ENDPOINT}"
+      auth:
+        authenticator: basicauth/metrics
+      resource_to_telemetry_conversion:
+        enabled: true
+      target_info:
+        enabled: true
+
+    loki:
+      endpoint: "https://${LOKI_ENDPOINT}"
+      auth:
+        authenticator: basicauth/logs
+
+  processors:
+
+    memory_limiter/metrics:
+      check_interval: 1s
+      limit_percentage: 85
+      spike_limit_percentage: 10
+
+
+    memory_limiter/logs:
+      check_interval: 1s
+      limit_percentage: 85
+      spike_limit_percentage: 10
+
+    batch/logs:
+      send_batch_size: 10000
+      send_batch_max_size: 12000
+      timeout: 600ms
+
+
+    batch/metrics:
+      send_batch_size: 10000
+      send_batch_max_size: 12000
+      timeout: 600ms
+
+
+  service:
+    extensions: [basicauth/metrics, basicauth/logs, health_check]
+    pipelines:
+      metrics:
+        receivers: [prometheus, mongodbatlas]
+        processors: [memory_limiter/metrics, k8sattributes, batch/metrics]
+        exporters: [prometheusremotewrite]
+      logs:
+        receivers: [mongodbatlas]
+        processors: [memory_limiter/logs, k8sattributes, batch/logs]
+        exporters: [loki]
+    telemetry:
+      metrics:
+        level: detailed
+        address: ":8888"
+      logs:
+        encoding: json

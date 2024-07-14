@@ -1,0 +1,89 @@
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  annotations:
+    gcp.project.bedrock.ford.com: prj-bdrck-preview-ctrlpln
+  name: iampolicymember-monitor-workload
+  namespace: observability
+spec:
+  member: serviceAccount:prj-bdrck-preview-ctrlpln.svc.id.goog[observability/bdrck-cluster-monitor-ctrlpln-opentelemetry-collector]
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: observability-sa
+  role: roles/iam.workloadIdentityUser
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  annotations:
+    gcp.project.bedrock.ford.com: prj-bdrck-preview-ctrlpln
+  name: iampolicymember-cluster-gateway-workload
+  namespace: observability
+spec:
+  member: serviceAccount:prj-bdrck-preview-ctrlpln.svc.id.goog[observability/bdrck-cluster-gateway-ctrlpln-opentelemetry-collector]
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: observability-sa
+  role: roles/iam.workloadIdentityUser
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  annotations:
+    gcp.project.bedrock.ford.com: prj-bdrck-preview-ctrlpln
+  name: iampolicymember-instrumentation-gateway-workload
+  namespace: observability
+spec:
+  member: serviceAccount:prj-bdrck-preview-ctrlpln.svc.id.goog[observability/bdrck-instrumentation-gateway-ctrlpln-opentelemetry-collector]
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: observability-sa
+  role: roles/iam.workloadIdentityUser
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  annotations:
+    gcp.project.bedrock.ford.com: prj-bdrck-preview-ctrlpln
+  name: iampolicymember-platform-gateway-workload
+  namespace: observability
+spec:
+  member: serviceAccount:prj-bdrck-preview-ctrlpln.svc.id.goog[observability/bdrck-platform-gateway-ctrlpln-opentelemetry-collector]
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: observability-sa
+  role: roles/iam.workloadIdentityUser
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  annotations:
+    gcp.project.bedrock.ford.com: prj-bdrck-preview-ctrlpln
+  name: iampolicymember-daemonset-workload
+  namespace: observability
+spec:
+  member: serviceAccount:prj-bdrck-preview-ctrlpln.svc.id.goog[observability/bdrck-ctrlpln-opentelemetry-collector]
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: observability-sa
+  role: roles/iam.workloadIdentityUser
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  annotations:
+    gcp.project.bedrock.ford.com: prj-bdrck-preview-ctrlpln
+  name: iampolicymember-deployment-workload
+  namespace: observability
+spec:
+  member: serviceAccount:prj-bdrck-preview-ctrlpln.svc.id.goog[observability/bdrck-gw-ctrlpln-opentelemetry-collector]
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: observability-sa
+  role: roles/iam.workloadIdentityUser

@@ -1,0 +1,893 @@
+apiVersion: oss.grafana.crossplane.io/v1alpha1
+kind: Dashboard
+metadata:
+  name: network-tcp-load-balancer
+spec:
+  providerConfigRef:
+    name: grafana-cloud-provider-config
+  forProvider:
+    folder: "Bedrock-IAC"
+    configJson: |
+      {
+        "annotations": {
+          "list": [
+            {
+              "builtIn": 1,
+              "datasource": {
+                "type": "datasource",
+                "uid": "grafana"
+              },
+              "enable": true,
+              "hide": true,
+              "iconColor": "rgba(0, 211, 255, 1)",
+              "name": "Annotations & Alerts",
+              "type": "dashboard"
+            }
+          ]
+        },
+        "editable": true,
+        "fiscalYearStartMonth": 0,
+        "graphTooltip": 0,
+        "id": 175,
+        "links": [],
+        "liveNow": false,
+        "panels": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "description": "",
+            "gridPos": {
+              "h": 3,
+              "w": 24,
+              "x": 0,
+              "y": 0
+            },
+            "id": 6,
+            "options": {
+              "code": {
+                "language": "plaintext",
+                "showLineNumbers": false,
+                "showMiniMap": false
+              },
+              "content": "This dashboard has 5 charts for the related [network TCP load balancer metrics](https://cloud.google.com/monitoring/api/metrics_gcp#gcp-loadbalancing), including `RTT latencies`, `Ingress TCP packets`, `Ingress TCP bytes`, `Egress TCP packets`, and `Egress TCP bytes`.",
+              "mode": "markdown"
+            },
+            "pluginVersion": "11.0.0-67977",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "refId": "A"
+              }
+            ],
+            "title": "Network TCP Load Balancer Monitoring",
+            "type": "text"
+          },
+          {
+            "datasource": {
+              "type": "stackdriver",
+              "uid": "$datasource"
+            },
+            "description": "Round-trip time latencies",
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 3
+            },
+            "id": 1,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "aliasBy": "",
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_95",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "tcp_lb_rule"
+                  ],
+                  "groupBys": [
+                    "resource.label.load_balancer_name"
+                  ],
+                  "metricKind": "DELTA",
+                  "metricType": "loadbalancing.googleapis.com/l3/external/rtt_latencies",
+                  "perSeriesAligner": "ALIGN_DELTA",
+                  "projectName": "$project",
+                  "unit": "ms",
+                  "valueType": "DISTRIBUTION"
+                },
+                "queryType": "timeSeriesList",
+                "refId": "A",
+                "timeSeriesList": {
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_95",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "tcp_lb_rule",
+                    "AND",
+                    "metric.type",
+                    "=",
+                    "loadbalancing.googleapis.com/l3/external/rtt_latencies"
+                  ],
+                  "groupBys": [
+                    "resource.label.load_balancer_name"
+                  ],
+                  "perSeriesAligner": "ALIGN_DELTA",
+                  "projectName": "$project"
+                }
+              },
+              {
+                "aliasBy": "",
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_05",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "tcp_lb_rule"
+                  ],
+                  "groupBys": [
+                    "resource.label.load_balancer_name"
+                  ],
+                  "metricKind": "DELTA",
+                  "metricType": "loadbalancing.googleapis.com/l3/external/rtt_latencies",
+                  "perSeriesAligner": "ALIGN_DELTA",
+                  "projectName": "$project",
+                  "unit": "ms",
+                  "valueType": "DISTRIBUTION"
+                },
+                "queryType": "timeSeriesList",
+                "refId": "B",
+                "timeSeriesList": {
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_05",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "tcp_lb_rule",
+                    "AND",
+                    "metric.type",
+                    "=",
+                    "loadbalancing.googleapis.com/l3/external/rtt_latencies"
+                  ],
+                  "groupBys": [
+                    "resource.label.load_balancer_name"
+                  ],
+                  "perSeriesAligner": "ALIGN_DELTA",
+                  "projectName": "$project"
+                }
+              },
+              {
+                "aliasBy": "",
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "queryType": "timeSeriesList",
+                "refId": "C",
+                "timeSeriesList": {
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_PERCENTILE_50",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "tcp_lb_rule",
+                    "AND",
+                    "metric.type",
+                    "=",
+                    "loadbalancing.googleapis.com/l3/external/rtt_latencies"
+                  ],
+                  "groupBys": [
+                    "resource.label.load_balancer_name"
+                  ],
+                  "perSeriesAligner": "ALIGN_DELTA",
+                  "projectName": "$project"
+                }
+              }
+            ],
+            "title": "RTT latencies [95/50/5 PERCENTILE]",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 3
+            },
+            "id": 2,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "tcp_lb_rule"
+                  ],
+                  "groupBys": [
+                    "resource.label.load_balancer_name"
+                  ],
+                  "metricKind": "DELTA",
+                  "metricType": "loadbalancing.googleapis.com/l3/external/ingress_packets_count",
+                  "perSeriesAligner": "ALIGN_RATE",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              }
+            ],
+            "title": "Ingress TCP packets",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 11
+            },
+            "id": 3,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "tcp_lb_rule"
+                  ],
+                  "groupBys": [
+                    "resource.label.load_balancer_name"
+                  ],
+                  "metricKind": "DELTA",
+                  "metricType": "loadbalancing.googleapis.com/l3/external/ingress_bytes_count",
+                  "perSeriesAligner": "ALIGN_RATE",
+                  "projectName": "$project",
+                  "unit": "By",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              }
+            ],
+            "title": "Ingress TCP bytes",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 11
+            },
+            "id": 4,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "tcp_lb_rule"
+                  ],
+                  "groupBys": [
+                    "resource.label.load_balancer_name"
+                  ],
+                  "metricKind": "DELTA",
+                  "metricType": "loadbalancing.googleapis.com/l3/external/egress_packets_count",
+                  "perSeriesAligner": "ALIGN_RATE",
+                  "projectName": "$project",
+                  "unit": "1",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              }
+            ],
+            "title": "Egress TCP packets",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "uid": "$datasource"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 19
+            },
+            "id": 5,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true,
+                "width": 220
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "7.4.0-pre",
+            "targets": [
+              {
+                "datasource": {
+                  "uid": "$datasource"
+                },
+                "metricQuery": {
+                  "aliasBy": "",
+                  "alignmentPeriod": "$alignmentPeriod",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "filters": [
+                    "resource.type",
+                    "=",
+                    "tcp_lb_rule"
+                  ],
+                  "groupBys": [
+                    "resource.label.load_balancer_name"
+                  ],
+                  "metricKind": "DELTA",
+                  "metricType": "loadbalancing.googleapis.com/l3/external/egress_bytes_count",
+                  "perSeriesAligner": "ALIGN_RATE",
+                  "projectName": "$project",
+                  "unit": "By",
+                  "valueType": "INT64"
+                },
+                "queryType": "metrics",
+                "refId": "A"
+              }
+            ],
+            "title": "Egress TCP bytes",
+            "type": "timeseries"
+          }
+        ],
+        "refresh": "",
+        "schemaVersion": 39,
+        "tags": [
+          "Cloud Monitoring",
+          "GCP"
+        ],
+        "templating": {
+          "list": [
+            {
+              "current": {
+                "selected": false,
+                "text": "Google Cloud Monitoring",
+                "value": "def7a167-4198-4459-b2de-32382e903bed"
+              },
+              "hide": 0,
+              "includeAll": false,
+              "label": "Datasource",
+              "multi": false,
+              "name": "datasource",
+              "options": [],
+              "query": "stackdriver",
+              "queryValue": "",
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "type": "datasource"
+            },
+            {
+              "current": {
+                "selected": false,
+                "text": "prj-bdrck-live-wrkld",
+                "value": "prj-bdrck-live-wrkld-a12c"
+              },
+              "datasource": {
+                "uid": "$datasource"
+              },
+              "definition": "Google Cloud Monitoring - Projects",
+              "hide": 0,
+              "includeAll": false,
+              "label": "Project",
+              "multi": false,
+              "name": "project",
+              "options": [],
+              "query": {
+                "labelKey": "",
+                "loading": false,
+                "projectName": "$project",
+                "projects": [],
+                "selectedMetricType": "actions.googleapis.com/smarthome_action/num_active_users",
+                "selectedQueryType": "projects",
+                "selectedSLOService": "",
+                "selectedService": "actions.googleapis.com",
+                "sloServices": []
+              },
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 0,
+              "tagValuesQuery": "",
+              "tagsQuery": "",
+              "type": "query",
+              "useTags": false
+            },
+            {
+              "current": {
+                "selected": false,
+                "text": "grafana auto",
+                "value": "grafana-auto"
+              },
+              "datasource": {
+                "uid": "$${datasource}"
+              },
+              "definition": "",
+              "hide": 2,
+              "includeAll": false,
+              "label": "Alignment Period",
+              "multi": false,
+              "name": "alignmentPeriod",
+              "options": [],
+              "query": {
+                "labelKey": "",
+                "loading": false,
+                "projectName": "$project",
+                "projects": [
+                  {
+                    "label": "cvc-assets-service-preview",
+                    "value": "cvc-assets-service-preview"
+                  },
+                  {
+                    "label": "cvc-account-service-preview",
+                    "value": "cvc-account-service-preview"
+                  },
+                  {
+                    "label": "cvc-data-key-service-preview",
+                    "value": "cvc-data-key-service-preview"
+                  },
+                  {
+                    "label": "cvc-iam-preview",
+                    "value": "cvc-iam-preview"
+                  },
+                  {
+                    "label": "cvc-homing-pigeon-preview",
+                    "value": "cvc-homing-pigeon-preview"
+                  },
+                  {
+                    "label": "cvc-sw-access-service-preview",
+                    "value": "cvc-sw-access-service-preview"
+                  },
+                  {
+                    "label": "prj-bdrck-live-wrkld",
+                    "value": "prj-bdrck-live-wrkld-a12c"
+                  },
+                  {
+                    "label": "prj-bdrck-preview-wrkld",
+                    "value": "prj-bdrck-preview-wrkld"
+                  },
+                  {
+                    "label": "prj-bdrck-live-ctrlpln",
+                    "value": "prj-bdrck-live-ctrlpln-7748"
+                  },
+                  {
+                    "label": "prj-bdrck-preview-ctrlpln",
+                    "value": "prj-bdrck-preview-ctrlpln"
+                  }
+                ],
+                "refId": "CloudMonitoringVariableQueryEditor-VariableQuery",
+                "selectedMetricType": "actions.googleapis.com/smarthome_action/num_active_users",
+                "selectedQueryType": "alignmentPeriods",
+                "selectedSLOService": "",
+                "selectedService": "actions.googleapis.com",
+                "sloServices": [
+                  {
+                    "label": "bedrock-cvc-gateway-istio",
+                    "value": "ist:prj-bdrck-live-ctrlpln-7748-location-us-central1-gke-bdrck-live-gateway-bedrock-cvc-gateway-istio"
+                  },
+                  {
+                    "label": "bedrock-gateway-istio",
+                    "value": "ist:prj-bdrck-live-ctrlpln-7748-location-us-central1-gke-bdrck-live-gateway-bedrock-gateway-istio"
+                  },
+                  {
+                    "label": "bedrock-gateway-mtls-istio",
+                    "value": "ist:prj-bdrck-live-ctrlpln-7748-location-us-central1-gke-bdrck-live-gateway-bedrock-gateway-mtls-istio"
+                  },
+                  {
+                    "label": "istio-eastwestgateway",
+                    "value": "ist:prj-bdrck-live-ctrlpln-7748-location-us-central1-gke-bdrck-live-istio-system-istio-eastwestgateway"
+                  }
+                ]
+              },
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 0,
+              "tagValuesQuery": "",
+              "tagsQuery": "",
+              "type": "query",
+              "useTags": false
+            }
+          ]
+        },
+        "time": {
+          "from": "now-24h",
+          "to": "now"
+        },
+        "timeRangeUpdatedDuringEditOrView": false,
+        "timepicker": {},
+        "timezone": "",
+        "title": "Network TCP Load Balancer",
+        "uid": "a5f2bee9-a4f7-4739-a756-6a6cccaffcbcA",
+        "weekStart": ""
+      }

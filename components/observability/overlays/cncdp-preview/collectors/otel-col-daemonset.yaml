@@ -1,0 +1,475 @@
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+# podLabels: {sidecar.istio.io/inject: "true"}
+mode: daemonset
+presets:
+  logsCollection:
+    enabled: true
+    includeCollectorLogs: true
+  kubernetesAttributes:
+    enabled: true
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 3Gi
+
+extraEnvs:
+# Should be around 80% of memory hard limit
+  - name: GOMEMLIMIT
+    value: 2400MiB
+  - name: BLOCK_CONTAINER_LIST
+    value: ","
+  - name: BLOCK_NAMESPACE_LIST
+    value: ","
+  - name: UNKNOWN_LOG_PERMITTED
+    value: "observability,bedrock-portal,gateway,istio-system,"
+  - name: TRACE_LOG_PERMITTED
+    value: "bedrock-portal,"
+  - name: DEBUG_LOG_PERMITTED
+    value: "bedrock-portal,"
+  - name: INFO_LOG_PERMITTED
+    value: "observability,bedrock-portal,gateway,istio-system,"
+  - name: CLUSTER_NAME
+    valueFrom:
+      configMapKeyRef:
+        name: cluster-info-map
+        key: cluster-name
+  - name: MIMIR_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirUser
+  - name: MIMIR_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirPass
+  - name: LOKI_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiUser
+  - name: LOKI_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiPass
+  - name: LOKI_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiEndpoint
+  - name: MIMIR_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirEndpoint
+  - name: KUBE_NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+
+clusterRole:
+  rules:
+  - apiGroups:
+    - ''
+    resources:
+    - 'services'
+    - 'events'
+    - 'namespaces'
+    - 'namespaces/status'
+    - 'nodes'
+    - 'nodes/spec'
+    - 'pods'
+    - 'pods/status'
+    - 'replicationcontrollers'
+    - 'replicationcontrollers/status'
+    - 'resourcequotas'
+    - 'nodes/proxy'
+    - 'endpoints'
+    verbs:
+    - 'get'
+    - 'list'
+    - 'watch'
+  - apiGroups:
+    - apps
+    resources:
+    - 'daemonsets'
+    - 'deployments'
+    - 'replicasets'
+    - 'statefulsets'
+    verbs:
+    - 'get'
+    - 'list'
+    - 'watch'
+  - apiGroups:
+    - extensions
+    resources:
+    - daemonsets
+    - deployments
+    - replicasets
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - batch
+    resources:
+    - jobs
+    - cronjobs
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - autoscaling
+    resources:
+    - horizontalpodautoscalers
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - 'events.k8s.io'
+    resources:
+    - events
+    verbs:
+    - watch
+  - nonResourceURLs:
+    - /metrics
+    verbs:
+    - get
+
+
+config:
+  receivers:
+    filelog:
+      include:
+        - /var/log/pods/*/*/*.log
+      start_at: beginning
+      include_file_path: true
+      include_file_name: false
+      operators:
+        # Find out which format is used by kubernetes
+        - type: router
+          id: get-format
+          routes:
+            - output: parser-docker
+              expr: 'body matches "^\\{"'
+            - output: parser-crio
+              expr: 'body matches "^[^ Z]+ "'
+            - output: parser-containerd
+              expr: 'body matches "^[^ Z]+Z"'
+        # Parse CRI-O format
+        - type: regex_parser
+          id: parser-crio
+          regex: '^(?P<time>[^ Z]+) (?P<stream>stdout|stderr)? (?P<logtag>[^ ]*) ?(?P<log>.*)$'
+          output: extract_metadata_from_filepath
+          timestamp:
+            parse_from: attributes.time
+            layout_type: gotime
+            layout: '2006-01-02T15:04:05.999999999Z07:00'
+        # Parse CRI-Containerd format
+        - type: regex_parser
+          id: parser-containerd
+          regex: '^(?P<time>[^ ^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$'
+          output: extract_metadata_from_filepath
+          timestamp:
+            parse_from: attributes.time
+            layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+        # Parse Docker format
+        - type: json_parser
+          id: parser-docker
+          output: extract_metadata_from_filepath
+          timestamp:
+            parse_from: attributes.time
+            layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+        # Extract metadata from file path
+        - type: regex_parser
+          id: extract_metadata_from_filepath
+          regex: '^.*\/(?P<namespace>[^_]+)_(?P<pod_name>[^_]+)_(?P<uid>[a-f0-9\-]{36})\/(?P<container_name>[^\._]+)\/(?P<restart_count>\d+)\.log$'
+          parse_from: attributes["log.file.path"]
+          cache:
+            size: 128  # default maximum amount of Pods per Node is 110
+        - type: move
+          from: attributes.log
+          to: body
+        - type: recombine
+          combine_field: body
+          is_first_entry: 'body not matches "^(\\s|\\t|Caused by:|org.)"'
+          source_identifier: attributes["log.file.path"]
+        # Rename attributes
+        - type: move
+          from: attributes["log.file.path"]
+          to: resource["filename"]
+        - type: add
+          field: attributes.log_level
+          value: EXPR(body + "unknown")
+# Attribute the first match to `attribute.level` varibale through the regex group.
+        - type: regex_parser
+          regex: '(?P<level>(TRACE|DEBUG|INFO|WARN|ERROR|FATAL|trace|debug|info|warn|error|fatal|Trace|Debug|Info|Warn|Error|Fatal|unknown))'
+          parse_from: attributes.log_level
+        - type: add
+          field: attributes.exclude.container
+          value: "${BLOCK_CONTAINER_LIST}"
+        - type: add
+          field: attributes.exclude.namespace
+          value: "${BLOCK_NAMESPACE_LIST}"
+        - type: add
+          field: attributes.bypass.info
+          value: "${INFO_LOG_PERMITTED}"
+        - type: add
+          field: resource["bypassInfo"]
+          value: EXPR(attributes.namespace not in split(attributes.bypass.info,","))
+        - type: add
+          field: attributes.bypass.unknown
+          value: "${UNKNOWN_LOG_PERMITTED}"
+        - type: add
+          field: resource["bypassUnknown"]
+          value: EXPR(attributes.namespace not in split(attributes.bypass.unknown,","))
+        - type: add
+          field: attributes.bypass.trace
+          value: "${TRACE_LOG_PERMITTED}"
+        - type: add
+          field: resource["bypassTrace"]
+          value: EXPR(attributes.namespace not in split(attributes.bypass.trace, ","))
+        - type: add
+          field: attributes.bypass.debug
+          value: "${DEBUG_LOG_PERMITTED}"
+        - type: add
+          field: resource["bypassDebug"]
+          value: EXPR(attributes.namespace not in split(attributes.bypass.debug,","))
+# Filter everything to disable control Plane logs. Remove the line if you want any log to be sent.
+#         - type: filter
+#           expr: '"everything" == "everything"'
+        - type: filter
+          expr: 'attributes.namespace in split(attributes.exclude.namespace,",")'
+        - type: filter
+          expr: 'attributes.container_name in split(attributes.exclude.container,",")'
+        - type: add
+          field: resource["level"]
+          value: EXPR(lower(attributes.level))
+        - type: move
+          from: attributes.container_name
+          to: resource["container"]
+        - type: move
+          from: attributes.namespace
+          to: resource["namespace"]
+        - type: move
+          from: attributes.pod_name
+          to: resource["pod"]
+# Add the cluster name in resource.attributes["cluster"] so we can filter by cluster. The cluster value comes from cluster-info-map.yaml ConfiMap.
+        - type: add
+          field: resource["cluster"]
+          value: "${CLUSTER_NAME}"
+
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: otel-col-agent-metrics
+            scrape_interval: 15s
+            static_configs:
+              - targets:
+                  - ${MY_POD_IP}:8888
+          - job_name: integrations/node_exporter
+            kubernetes_sd_configs:
+              - namespaces:
+                  names:
+                    - observability
+                role: pod
+                selectors:
+                  - role: pod
+                    # only scrape data from pods running on the same node as collector
+                    field: "spec.nodeName=$KUBE_NODE_NAME"
+            relabel_configs:
+                - action: keep
+                  regex: prometheus-node-exporter.*
+                  source_labels:
+                    - __meta_kubernetes_pod_label_app_kubernetes_io_name
+                - action: replace
+                  source_labels:
+                    - __meta_kubernetes_pod_node_name
+                  target_label: instance
+                - action: replace
+                  source_labels:
+                    - __meta_kubernetes_namespace
+                  target_label: namespace
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                action: keep
+                regex: 'kubelet_running_containers|go_goroutines|kubelet_runtime_operations_errors_total|cluster:namespace:pod_cpu:active:kube_pod_container_resource_limits|namespace_memory:kube_pod_container_resource_limits:sum|kubelet_volume_stats_inodes_used|kubelet_certificate_manager_server_ttl_seconds|namespace_workload_pod:kube_pod_owner:relabel|kubelet_node_config_error|kube_daemonset_status_number_misscheduled|kube_pod_container_resource_requests|namespace_cpu:kube_pod_container_resource_limits:sum|container_memory_working_set_bytes|container_fs_reads_bytes_total|kube_node_status_condition|namespace_cpu:kube_pod_container_resource_requests:sum|kubelet_server_expiration_renew_errors|container_fs_writes_total|kube_horizontalpodautoscaler_status_desired_replicas|node_filesystem_avail_bytes|kube_pod_status_reason|node_filesystem_size_bytes|kube_deployment_spec_replicas|kube_statefulset_metadata_generation|namespace_workload_pod|storage_operation_duration_seconds_count|kubelet_certificate_manager_client_expiration_renew_errors|kube_pod_container_resource_limits|kube_statefulset_status_replicas_updated|node_namespace_pod_container:container_memory_rss|kube_statefulset_status_observed_generation|node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate|kubelet_pleg_relist_interval_seconds_bucket|kube_job_status_start_time|kube_deployment_status_observed_generation|kubelet_pod_worker_duration_seconds_bucket|container_memory_cache|kube_resourcequota|kube_horizontalpodautoscaler_spec_min_replicas|namespace_memory:kube_pod_container_resource_requests:sum|kube_persistentvolumeclaim_resource_requests_storage_bytes|kube_daemonset_status_number_available|kube_job_failed|storage_operation_errors_total|cluster:namespace:pod_memory:active:kube_pod_container_resource_limits|container_fs_writes_bytes_total|kube_statefulset_replicas|kube_replicaset_owner|container_network_receive_bytes_total|volume_manager_total_volumes|kube_horizontalpodautoscaler_spec_max_replicas|kube_daemonset_status_desired_number_scheduled|kube_pod_container_status_waiting_reason|process_cpu_seconds_total|kube_node_status_allocatable|kube_deployment_status_replicas_available|kube_daemonset_status_updated_number_scheduled|container_network_receive_packets_total|container_memory_rss|container_cpu_usage_seconds_total|kube_namespace_status_phase|cluster:namespace:pod_memory:active:kube_pod_container_resource_requests|kubelet_volume_stats_available_bytes|kube_deployment_status_replicas_updated|kubelet_running_container_count|kube_node_info|container_network_transmit_packets_dropped_total|kubelet_certificate_manager_client_ttl_seconds|kube_pod_owner|kubelet_volume_stats_inodes|kubelet_runtime_operations_total|container_cpu_cfs_throttled_periods_total|kubelet_cgroup_manager_duration_seconds_bucket|kubelet_running_pod_count|container_network_transmit_packets_total|kubelet_node_name|kube_daemonset_status_current_number_scheduled|kube_statefulset_status_replicas_ready|cluster:namespace:pod_cpu:active:kube_pod_container_resource_requests|kubelet_volume_stats_capacity_bytes|kube_horizontalpodautoscaler_status_current_replicas|node_quantile:kubelet_pleg_relist_duration_seconds:histogram_quantile|kube_node_spec_taint|kubelet_pleg_relist_duration_seconds_bucket|kube_pod_status_phase|container_cpu_cfs_periods_total|kube_deployment_metadata_generation|node_namespace_pod_container:container_memory_cache|kube_statefulset_status_current_revision|kubelet_pleg_relist_duration_seconds_count|container_fs_reads_total|kube_statefulset_status_update_revision|container_network_receive_packets_dropped_total|kube_pod_info|kubelet_running_pods|process_resident_memory_bytes|kubelet_pod_worker_duration_seconds_count|kubelet_pod_start_duration_seconds_count|kubelet_cgroup_manager_duration_seconds_count|kube_node_status_capacity|container_network_transmit_bytes_total|rest_client_requests_total|kubernetes_build_info|machine_memory_bytes|kube_statefulset_status_replicas|container_memory_swap|kube_job_status_active|kubelet_pod_start_duration_seconds_bucket|node_namespace_pod_container:container_memory_working_set_bytes|node_namespace_pod_container:container_memory_swap|kube_namespace_status_phase|container_cpu_usage_seconds_total|kube_pod_status_phase|kube_pod_start_time|kube_pod_container_status_restarts_total|kube_pod_container_info|kube_pod_container_status_waiting_reason|kube_daemonset.*|kube_replicaset.*|kube_statefulset.*|kube_job.*|kube_node.*|node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate|cluster:namespace:pod_cpu:active:kube_pod_container_resource_requests|namespace_cpu:kube_pod_container_resource_requests:sum|node_cpu.*|node_memory.*|node_filesystem.*'
+          - job_name: "envoy-stats"
+            scrape_interval: 30s
+            relabel_configs:
+              - source_labels: [__meta_kubernetes_pod_container_port_name]
+                action: keep
+                regex: '.*-envoy-prom'
+              - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+                action: replace
+                target_label: __metrics_path__
+                regex: (.+)
+              - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+                action: replace
+                regex: '([^:]+)(?::\d+)?;(\d+)'
+                replacement: $${1}:$${2}
+                target_label: __address__
+              - action: replace
+                target_label: environment
+                replacement: preview
+            kubernetes_sd_configs:
+              - role: pod
+                selectors:
+                  - role: pod
+                    # only scrape data from pods running on the same node as collector
+                    field: "spec.nodeName=$KUBE_NODE_NAME"
+          - job_name: 'istiod'
+            kubernetes_sd_configs:
+              - role: endpoints
+                selectors:
+                  - role: pod
+                    field: "spec.nodeName=$KUBE_NODE_NAME"
+                namespaces:
+                  names:
+                    - istio-system
+            relabel_configs:
+              - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+                action: keep
+                regex: istiod;http-monitoring
+              - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+                action: replace
+                target_label: __metrics_path__
+                regex: (.+)
+              - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+                action: replace
+                regex: '([^:]+)(?::\d+)?;(\d+)'
+                replacement: $${1}:$${2}
+                target_label: __address__
+
+  extensions:
+    basicauth/metrics:
+      client_auth:
+        username: "${MIMIR_USER}"
+        password: "${MIMIR_PASS}"
+
+    basicauth/logs:
+      client_auth:
+        username: "${LOKI_USER}"
+        password: "${LOKI_PASS}"
+
+    zpages:
+      endpoint: 0.0.0.0:55679
+
+  exporters:
+    prometheusremotewrite:
+      external_labels:
+        cluster: "${CLUSTER_NAME}"
+      endpoint: "${MIMIR_ENDPOINT}"
+      auth:
+        authenticator: basicauth/metrics
+      resource_to_telemetry_conversion:
+        enabled: true
+      target_info:
+        enabled: true
+
+    loki:
+      endpoint: "${LOKI_ENDPOINT}"
+      auth:
+        authenticator: basicauth/logs
+
+    debug:
+      verbosity: detailed
+
+  processors:
+    transform:
+      error_mode: ignore
+      metric_statements:
+        - context: metric
+          statements:
+            - delete_key(resource.attributes, "k8s.pod.start_time")
+            - delete_key(resource.attributes, "k8s.pod.uid")
+#             - set(resource.attributes["service.namespace"], resource.attributes["k8s.namespace.name"])
+        - context: datapoint
+          statements:
+            - delete_key(attributes, "mountpoint")
+
+    k8sattributes:
+      filter:
+        node_from_env_var: KUBE_NODE_NAME
+
+    memory_limiter:
+      check_interval: 1s
+      limit_percentage: 85
+      spike_limit_percentage: 10
+
+    batch:
+      send_batch_size: 10000
+      send_batch_max_size: 12000
+      timeout: 600ms
+
+    resourcedetection:
+      detectors: [azure]
+
+    resource/logs:
+      attributes:
+      - action: insert
+        key: loki.format
+        value: raw
+      - action: insert
+        key: loki.resource.labels
+        value: pod, namespace, container, cluster, filename, level
+
+
+
+#   This transformation is usefull because of the `recombine` operator, otherwise the log level will be the log of the first recombined message.
+#   It will only affect `unknown` level but this transform is less efficient than the operator logic for level, as it will match the level in order
+#   while the operator get the first match in the sentence. Also the body can have more strings than the log message.
+#   This causes the body to catch the level even if there is no key word in the log message.
+    transform/logs:
+      error_mode: ignore
+      log_statements:
+        - context: log
+          statements:
+            - set(resource.attributes["level"], "fatal") where IsMatch(resource.attributes["level"],"^unknown$") and IsMatch(body,"(fatal|Fatal|FATAL)")
+            - set(resource.attributes["level"], "error") where IsMatch(resource.attributes["level"],"^unknown$") and IsMatch(body,"(error|Error|ERROR)")
+            - set(resource.attributes["level"], "error") where IsMatch(resource.attributes["level"],"^unknown$") and IsMatch(body,"(Exception|exception|EXCEPTION)")
+            - set(resource.attributes["level"], "warn") where IsMatch(resource.attributes["level"],"^unknown$") and IsMatch(body,"(warn|Warn|WARN)")
+            - set(resource.attributes["level"], "info") where IsMatch(resource.attributes["level"],"^unknown$") and IsMatch(body,"(info|Info|INFO)")
+            - set(resource.attributes["level"], "trace") where IsMatch(resource.attributes["level"],"^unknown$") and IsMatch(body,"(trace|Trace|TRACE)")
+            - set(resource.attributes["level"], "debug") where IsMatch(resource.attributes["level"],"^unknown$") and IsMatch(body,"(debug|Debug|DEBUG)")
+            - set(attributes["body"], body)
+            - replace_all_patterns(attributes, "value", "([0-9a-f]{2})-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})", "$$2")
+            - set(body, attributes["body"])
+
+#   This filter is usefull for filtering the logs by level to avoid Grafana cost due to unwanted low level logs, such as Debug and Trace.
+#   Despite that, there is a bypass variable list that will skip the filtering if required. As the processor logic is more obtuse than the operator
+#   the calulation is made in the operator and we just match if the result string is True.
+    filter/logs:
+      error_mode: ignore
+      logs:
+        log_record:
+          - ' IsMatch(resource.attributes["level"],"(info|Info|INFO)") and IsMatch(resource.attributes["bypassInfo"],"(true|True)")'
+          - ' IsMatch(resource.attributes["level"],"(trace|Trace|TRACE)") and IsMatch(resource.attributes["bypassTrace"],"(true|True)")'
+          - ' IsMatch(resource.attributes["level"],"(debug|Debug|DEBUG)") and IsMatch(resource.attributes["bypassDebug"],"(true|True)")'
+          - ' IsMatch(resource.attributes["level"],"(unknown)") and IsMatch(resource.attributes["bypassUnknown"],"(true|True)")'
+
+
+
+  service:
+    extensions: [ basicauth/metrics, basicauth/logs, health_check, zpages ]
+    pipelines:
+      metrics:
+        receivers: [otlp, prometheus]
+        processors: [memory_limiter, k8sattributes, transform, resourcedetection, batch]
+        exporters: [prometheusremotewrite]
+      logs:
+        receivers: [filelog]
+        processors: [batch, transform/logs, filter/logs, resource/logs, k8sattributes]
+        exporters: [loki]
+    telemetry:
+      metrics:
+        level: detailed
+        address: ":8888"
+      logs:
+        encoding: json

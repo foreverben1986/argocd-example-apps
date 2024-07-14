@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: observability
+
+resources:
+ - ../base-b4fb1951/instrumentation/otel-java-instrumentation.yaml
+ - ../base-b4fb1951/instrumentation/otel-traces-gateway-headless.yaml
+ - ../base-b4fb1951/instrumentation/otel-span-metrics-gateway-headless.yaml
+ - ../base-b4fb1951/instrumentation/workloadClusterSecretReplication.yaml

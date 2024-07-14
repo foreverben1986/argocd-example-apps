@@ -1,0 +1,169 @@
+mode: deployment
+
+replicaCount: 3
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 3Gi
+
+extraEnvs:
+  - name: CLUSTER_NAME
+    valueFrom:
+      configMapKeyRef:
+        name: cluster-info-map
+        key: cluster-name
+  - name: TEMPO_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: tempoUser
+  - name: TEMPO_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: tempoPass
+  - name: MIMIR_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirUser
+  - name: MIMIR_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirPass
+  - name: TEMPO_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: tempoEndpoint
+  - name: MIMIR_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirEndpoint
+
+
+
+config:
+  extensions:
+    basicauth/traces:
+      client_auth:
+        username: "${TEMPO_USER}"
+        password: "${TEMPO_PASS}"
+    basicauth/metrics:
+      client_auth:
+        username: "${MIMIR_USER}"
+        password: "${MIMIR_PASS}"
+
+  connectors:
+    spanmetrics:
+      histogram:
+        explicit:
+          buckets: [1ms, 2ms, 4ms, 8ms, 20ms, 50ms, 100ms, 400ms, 600ms, 1s, 2s, 5s]
+      dimensions:
+        - name: http.method
+        - name: http.status_code
+        - name: http.route
+      dimensions_cache_size: 50000
+      exemplars:
+        enabled: true
+
+  receivers:
+    prometheus:
+      config:
+        scrape_configs:
+        - job_name: otel-col-gateway2-metrics
+          scrape_interval: 15s
+          static_configs:
+            - targets:
+                - ${MY_POD_IP}:8888
+
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  exporters:
+    otlp:
+      endpoint: "${TEMPO_ENDPOINT}"
+      tls:
+        insecure: true
+      sending_queue:
+        num_consumers: 4
+        queue_size: 100
+      retry_on_failure:
+        enabled: true
+
+    prometheusremotewrite:
+      external_labels:
+        cluster: "${CLUSTER_NAME}"
+      endpoint: "${MIMIR_ENDPOINT}"
+      auth:
+        authenticator: basicauth/metrics
+      resource_to_telemetry_conversion:
+        enabled: true
+      target_info:
+        enabled: true
+
+    debug:
+      verbosity: detailed
+
+  processors:
+    memory_limiter:
+      check_interval: 1s
+      limit_percentage: 85
+      spike_limit_percentage: 10
+
+    batch:
+      send_batch_size: 10000
+      send_batch_max_size: 12000
+      timeout: 600ms
+
+    transform:
+      error_mode: ignore
+      trace_statements:
+        - context: span
+          statements:
+            - set(resource.attributes["cluster"], "${CLUSTER_NAME}")
+            - set(attributes["cluster"], "${CLUSTER_NAME}")
+
+    tail_sampling:
+      decision_wait: 15s
+      num_traces: 5000
+      expected_new_traces_per_sec: 10
+      policies:
+        [
+          {
+            name: health-check-policy,
+            type: string_attribute,
+            string_attribute:
+              {
+                key: http.route,
+                values: [\/readyz, \/health],
+                enabled_regex_matching: true,
+                invert_match: true
+              },
+          }
+        ]
+
+  service:
+    telemetry:
+      logs:
+        encoding: json
+      metrics:
+        level: detailed
+        address: ":8888"
+    extensions: [basicauth/traces, basicauth/metrics, health_check, memory_ballast ]
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, transform, tail_sampling, batch]
+        exporters: [otlp, debug]
+      metrics:
+        receivers: [prometheus]
+        processors: [memory_limiter, batch]
+        exporters: [prometheusremotewrite]

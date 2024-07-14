@@ -1,0 +1,48 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: observability
+
+helmGlobals:
+  chartHome: ./charts
+
+resources:
+ - instrumentation/otel-java-instrumentation.yaml
+ - instrumentation/otel-traces-gateway-headless.yaml
+ - instrumentation/otel-span-metrics-gateway-headless.yaml
+ - instrumentation/otel-servicegraph-gateway-headless.yaml
+ - instrumentation/workloadClusterSecretReplication.yaml
+
+helmCharts:
+  - name: opentelemetry-operator
+    namespace: observability
+    releaseName: opentelemetry-operator
+    includeCRDs: true
+    valuesInline:
+      manager:
+        collectorImage:
+          repository: "otel/opentelemetry-collector-contrib"
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+  - name: kube-state-metrics
+    namespace: observability
+    releaseName: ksm
+    valuesInline:
+      image:
+        tag: v2.9.2
+
+patches:
+- target:
+    kind: Deployment
+    namespace: observability
+    name: eventexporter-kubernetes-event-exporter
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/name
+      value: "k8s-event"
+
+

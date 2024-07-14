@@ -1,0 +1,155 @@
+apiVersion: alerting.grafana.crossplane.io/v1alpha1
+kind: RuleGroup
+metadata:
+  annotations:
+    meta.upbound.io/example-id: infrastructure-rg
+  labels:
+    testing.upbound.io/example-name: infrastructure-rg
+  name: infrastructure
+spec:
+  providerConfigRef:
+    name: grafana-cloud-provider-config
+  forProvider:
+    folderSelector:
+      matchLabels:
+        testing.upbound.io/example-name: jedi
+    orgId: "1"
+    intervalSeconds: 120
+    name: infrastructure
+    rule:
+    - annotations:
+        description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} ({{ $labels.container }}) is in waiting state (reason: \"CrashLoopBackOff\")."
+        runbook_url: "https://github.com/kubernetes-monitoring/kubernetes-mixin/tree/master/runbook.md#alert-name-kubepodcrashlooping"
+        summary: "Pod is crash looping."
+      condition: B
+      data:
+      - datasourceUid: "prometheus"
+        model: "{\"editorMode\":\"code\",\"exemplar\":false,\"expr\":\"max_over_time(kube_pod_container_status_waiting_reason{reason=\\\"CrashLoopBackOff\\\", job!=\\\"\\\"}[5m]) \\u003e= 1\\n\",\"instant\":true,\"intervalMs\":1000,\"maxDataPoints\":43200,\"range\":false,\"refId\":\"A\"}"
+        queryType: ""
+        refId: A
+        relativeTimeRange:
+        - from: 300
+          to: 0
+      - datasourceUid: "__expr__"
+        model: "{\"conditions\":[{\"evaluator\":{\"params\":[0,0],\"type\":\"gt\"},\"operator\":{\"type\":\"and\"},\"query\":{\"params\":[]},\"reducer\":{\"params\":[],\"type\":\"avg\"},\"type\":\"query\"}],\"datasource\":{\"name\":\"Expression\",\"type\":\"__expr__\",\"uid\":\"__expr__\"},\"expression\":\"A\",\"hide\":false,\"intervalMs\":1000,\"maxDataPoints\":43200,\"refId\":\"B\",\"type\":\"threshold\"}"
+        queryType: ""
+        refId: B
+        relativeTimeRange:
+        - from: 0
+          to: 0
+      noDataState: "NoData"
+      execErrState: "Error"
+      for: 2m
+      isPaused: false
+      name: KubePodCrashLooping
+      labels: 
+        env: "preview"
+        team: "jedi"
+    # alert for deployment failure
+    - annotations:
+        description: "The deployment resource \"{{index $labels \"deployment\"}}\" in cluster \"{{index $labels \"cluster\"}} \" not reach the predetermined number, below: {{$values.A.Value}}."
+        runbook_url: ""
+        summary: "The Deployment resource did not reach the predetermined number."
+      condition: C
+      data:
+      - datasourceUid: "prometheus"
+        model: "{\"disableTextWrap\":false,\"editorMode\":\"code\",\"expr\":\"sum by(cluster, deployment, namespace) (kube_deployment_spec_replicas) - sum by(cluster, deployment, namespace) (kube_deployment_status_replicas_available)\",\"fullMetaSearch\":false,\"includeNullMetadata\":true,\"instant\":true,\"intervalMs\":1000,\"legendFormat\":\"__auto\",\"maxDataPoints\":43200,\"range\":false,\"refId\":\"A\",\"useBackend\":false}"
+        queryType: ""
+        refId: A
+        relativeTimeRange:
+        - from: 300
+          to: 0
+      - datasourceUid: "__expr__"
+        model: "{\"conditions\":[{\"evaluator\":{\"params\":[0],\"type\":\"gt\"},\"operator\":{\"type\":\"and\"},\"query\":{\"params\":[\"C\"]},\"reducer\":{\"params\":[],\"type\":\"last\"},\"type\":\"query\"}],\"datasource\":{\"type\":\"__expr__\",\"uid\":\"__expr__\"},\"expression\":\"A\",\"intervalMs\":1000,\"maxDataPoints\":43200,\"refId\":\"C\",\"type\":\"threshold\"}"
+        queryType: ""
+        refId: C
+        relativeTimeRange:
+        - from: 0
+          to: 0
+      noDataState: "NoData"
+      execErrState: "Error"
+      for: 2m
+      isPaused: false
+      name: DeploymentNotAchieveExpectedNumber
+      labels: 
+        env: "preview"
+        team: "jedi"
+    # alert for ImagePullBackOff
+    - annotations:
+        description: "Pod {{$labels.pod}} is in ImagePullBackOff. Verify the image name is correct. If the image name is correct, contact SRE for further investigation.\""
+        runbook_url: ""
+        summary: "Pods:{{$labels.pod}} in ImagePullBackOff"
+      condition: B
+      data:
+      - datasourceUid: "prometheus"
+        model: "{\"disableTextWrap\":false,\"editorMode\":\"code\",\"expr\":\"sum(kube_pod_container_status_waiting_reason{reason=~\\\"ImagePullBackOff|ErrImagePull\\\"}) by(pod, namespace)\",\"fullMetaSearch\":false,\"includeNullMetadata\":true,\"instant\":true,\"intervalMs\":1000,\"legendFormat\":\"__auto\",\"maxDataPoints\":43200,\"range\":false,\"refId\":\"A\",\"useBackend\":false}"
+        queryType: ""
+        refId: A
+        relativeTimeRange:
+        - from: 300
+          to: 0
+      - datasourceUid: "__expr__"
+        model: "{\"conditions\":[{\"evaluator\":{\"params\":[0,0],\"type\":\"gt\"},\"operator\":{\"type\":\"and\"},\"query\":{\"params\":[]},\"reducer\":{\"params\":[],\"type\":\"avg\"},\"type\":\"query\"}],\"datasource\":{\"name\":\"Expression\",\"type\":\"__expr__\",\"uid\":\"__expr__\"},\"expression\":\"A\",\"intervalMs\":1000,\"maxDataPoints\":43200,\"refId\":\"B\",\"type\":\"threshold\"}"
+        queryType: ""
+        refId: B
+        relativeTimeRange:
+        - from: 0
+          to: 0
+      noDataState: "NoData"
+      execErrState: "Error"
+      for: 2m
+      isPaused: false
+      name: PodsInImagePullBackoff
+      labels: 
+        env: "preview"
+        team: "jedi"
+    # alert for CPU
+    - annotations:
+        description: "Container *{{$labels.container}}* in pod *{{$labels.pod}}* in the *{{$labels.namespace}}* namespace is being throttled"
+        runbook_url: ""
+        summary: "A container is being throttled"
+      condition: C
+      data:
+      - datasourceUid: "prometheus"
+        model: "{\"editorMode\":\"code\",\"expr\":\"sum(increase(container_cpu_cfs_throttled_periods_total{container!=\\\"\\\", container!=\\\"metrics-server-nanny\\\"}[10m])) by (container, pod, namespace)\\n          / sum(increase(container_cpu_cfs_periods_total[10m])) by (container, pod, namespace)\",\"instant\":true,\"intervalMs\":1000,\"legendFormat\":\"__auto\",\"maxDataPoints\":43200,\"range\":false,\"refId\":\"A\"}"
+        queryType: ""
+        refId: A
+        relativeTimeRange:
+        - from: 300
+          to: 0
+      - datasourceUid: "__expr__"
+        model: "{\"conditions\":[{\"evaluator\":{\"params\":[0.6],\"type\":\"gt\"},\"operator\":{\"type\":\"and\"},\"query\":{\"params\":[\"C\"]},\"reducer\":{\"params\":[],\"type\":\"last\"},\"type\":\"query\"}],\"datasource\":{\"type\":\"__expr__\",\"uid\":\"__expr__\"},\"expression\":\"A\",\"intervalMs\":1000,\"maxDataPoints\":43200,\"refId\":\"C\",\"type\":\"threshold\"}"
+        queryType: ""
+        refId: C
+        relativeTimeRange:
+        - from: 0
+          to: 0
+      noDataState: "NoData"
+      execErrState: "Error"
+      for: 2m
+      isPaused: false
+      name: CPUThrottlingHigh
+      labels: 
+        env: "preview"
+        team: "jedi"
+    - annotations:
+        description: "Cluster is running at >95% (average) of its Pod capacity"
+        runbook_url: "https://github.com/kubernetes-monitoring/kubernetes-mixin/tree/master/runbook.md#alert-name-kubelettoomanypods"
+        summary: "Cluster is running at capacity"
+      condition: A
+      data:
+      - datasourceUid: "prometheus"
+        model: "{\"editorMode\":\"code\",\"expr\":\"avg by (cluster) (count by(cluster, node) (\\r\\n  (kube_pod_status_phase{job!=\\\"\\\",phase=\\\"Running\\\"} == 1) * on(instance,pod,namespace,cluster) group_left(node) topk by(instance,pod,namespace,cluster) (1, kube_pod_info{job!=\\\"\\\"})\\r\\n)\\r\\n/\\r\\nmax by(cluster, node) (\\r\\n  kube_node_status_capacity{job!=\\\"\\\",resource=\\\"pods\\\"} != 1\\r\\n) )\\u003e 0.95 \\r\\n\",\"instant\":true,\"intervalMs\":1000,\"legendFormat\":\"__auto\",\"maxDataPoints\":43200,\"range\":false,\"refId\":\"A\"}"
+        queryType: ""
+        refId: A
+        relativeTimeRange:
+        - from: 600
+          to: 0
+      noDataState: "NoData"
+      execErrState: "Error"
+      for: 2m
+      isPaused: false
+      name: ClusterAvgAtCapacity
+      labels: 
+        env: "preview"
+        team: "jedi"

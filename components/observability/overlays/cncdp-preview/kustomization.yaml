@@ -1,0 +1,184 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  #  - iam-service-account.yaml
+  - otel-csi-secret.yaml
+  #  - secret-permissions.yaml
+  #  - workload-idenity-binding.yaml
+  - cluster-info-map.yaml
+  - dashboards/folder-creation.yaml
+  - dashboards/CertManager.yaml
+  - dashboards/ArgoCD.yaml
+  - dashboards/CloudSqlMonitoring.yaml
+  - dashboards/KafkaMetrics.yaml
+  - dashboards/KubevelaSystem.yaml
+  - dashboards/MongoDbAtlas.yaml
+  - dashboards/NetworkTcpLoadbalanacer.yaml
+  - dashboards/OtelCollector.yaml
+  - dashboards/OtelCollectorSupportMetrics.yaml
+  - dashboards/RedisMonitoring.yaml
+  - dashboards/KubernetesIntegration.yaml
+  - dashboards/Efficiency.yaml
+  - dashboards/KubernetesComputeResourcesMultiCluster.yaml
+  - dashboards/KubernetesComputeResourcesCluster.yaml
+  - dashboards/KubernetesComputeResourcesNamespacePods.yaml
+  - dashboards/KubernetesComputeResourcesNamespaceWorkloads.yaml
+  - dashboards/KubernetesComputeResourcesNodePods.yaml
+  - dashboards/KubernetesComputeResourcesPod.yaml
+  - dashboards/KubernetesComputeResourcesWorkload.yaml
+  - dashboards/KubernetesKubelet.yaml
+  - dashboards/KubernetesPersistentVolumes.yaml
+  - dashboards/HttpMetrics.yaml
+  - dashboards/gRPCMetrics.yaml
+  - dashboards/LokiLogQuery.yaml
+  - thresholds/alert-jedi-infra.yaml
+  - thresholds/alert-jedi-kubevela.yaml
+  - thresholds/alert-jedi-temporal.yaml
+  - thresholds/cp-jedi-slack.yaml
+  - thresholds/folder-jedi.yaml
+  - thresholds/notify-policy-jedi.yaml
+#  - mongodb-csi-secret.yaml
+#  - mongodb-secret-permissions.yaml
+
+helmGlobals:
+  chartHome: ../../base-b4fb1951/charts
+
+helmCharts:
+  - name: opentelemetry-collector
+    namespace: observability
+    releaseName: bdrck-cluster-monitor-ctrlpln
+    valuesFile: collectors/otel-cluster-monitor.yaml
+    additionalValuesFiles:
+      - secrets/secretVolumes.yaml
+      - china.yaml
+  - name: opentelemetry-collector
+    namespace: observability
+    releaseName: bdrck-cluster-gateway-ctrlpln
+    valuesFile: collectors/otel-col-cluster-gateway.yaml
+    additionalValuesFiles:
+      - secrets/secretVolumes.yaml
+      - china.yaml
+  - name: opentelemetry-collector
+    namespace: observability
+    releaseName: bdrck-instrumentation-gateway-ctrlpln
+    valuesFile: collectors/otel-col-instrumentation-gateway.yaml
+    additionalValuesFiles:
+      - secrets/secretVolumes.yaml
+      - china.yaml
+  - name: opentelemetry-collector
+    namespace: observability
+    releaseName: bdrck-gw-ctrlpln
+    valuesFile: collectors/otel-col-deployment.yaml
+    additionalValuesFiles:
+      - secrets/secretVolumes.yaml
+      - china.yaml
+  - name: opentelemetry-collector
+    namespace: observability
+    releaseName: bdrck-ctrlpln
+    valuesFile: collectors/otel-col-daemonset.yaml
+    additionalValuesFiles:
+      - secrets/secretVolumes.yaml
+      - china.yaml
+  - name: prometheus-node-exporter
+    namespace: observability
+    releaseName: nodeexporter
+    valuesFile: node-exporter/node-exporter-config.yaml
+  - name: kubernetes-event-exporter
+    namespace: observability
+    releaseName: eventexporter
+    valuesFile: event-exporter/event-exporter.yaml
+  - name: opentelemetry-collector
+    namespace: observability
+    releaseName: bdrck-traces-gateway-ctrlpln
+    valuesFile: collectors/otel-col-traces-gateway.yaml
+    additionalValuesFiles:
+      - secrets/secretVolumes.yaml
+      - china.yaml
+  - name: opentelemetry-collector
+    namespace: observability
+    releaseName: bdrck-span-metrics-gateway-ctrlpln
+    valuesFile: collectors/otel-col-span-metrics-gateway.yaml
+    additionalValuesFiles:
+      - secrets/secretVolumes.yaml
+      - china.yaml
+  - name: opentelemetry-operator
+    namespace: observability
+    releaseName: opentelemetry-operator
+    includeCRDs: true
+    valuesInline:
+      manager:
+        collectorImage:
+          repository: ford.jfrog.io/cncdp-docker-preview/external/docker.io/otel/opentelemetry-collector-contrib
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        image:
+          repository: ford.jfrog.io/cncdp-docker-preview/opentelemetry-operator
+      imagePullSecrets:
+        - name: artifactory-secret
+      kubeRBACProxy:
+        image:
+          repository: ford.jfrog.io/cncdp-docker-preview/kube-rbac-proxy
+      testFramework:
+        image:
+          repository: ford.jfrog.io/cncdp-docker-preview/busybox
+  - name: kube-state-metrics
+    namespace: observability
+    releaseName: ksm
+    valuesInline:
+      image:
+        tag: v2.9.2
+        registry: ford.jfrog.io
+        repository: cncdp-docker-preview/kube-state-metrics
+      imagePullSecrets:
+        - name: artifactory-secret
+patches:
+  - target:
+      kind: Deployment
+      namespace: observability
+      name: eventexporter-kubernetes-event-exporter
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/name
+        value: "k8s-event"
+  - target:
+      kind: Pod
+      namespace: observability
+    patch: |
+      $patch: delete
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: DOES NOT MATTER
+  - target:
+      kind: Deployment
+      namespace: observability
+      name: opentelemetry-operator
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Always
+      - op: add
+        path: /spec/template/spec/containers/1/imagePullPolicy
+        value: Always
+  - target:
+      kind: Application
+      namespace: observability
+      name: observability-cred-replication
+    patch: |-
+      - op: remove
+        path: /spec/components/1
+      - op: replace
+        path: /spec/policies/0
+        value:
+          type: topology
+          name: topology-cn-north-3
+          properties:
+            clusterLabelSelector:
+              region: cn-north3

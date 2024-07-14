@@ -1,0 +1,2023 @@
+apiVersion: oss.grafana.crossplane.io/v1alpha1
+kind: Dashboard
+metadata:
+  name: otel-collector-support-metrics
+spec:
+  providerConfigRef:
+    name: grafana-cloud-provider-config
+  forProvider:
+    folder: "Bedrock-IAC"
+    configJson: |
+      {
+        "annotations": {
+          "list": [
+            {
+              "builtIn": 1,
+              "datasource": {
+                "type": "grafana",
+                "uid": "-- Grafana --"
+              },
+              "enable": true,
+              "hide": true,
+              "iconColor": "rgba(0, 211, 255, 1)",
+              "name": "Annotations & Alerts",
+              "type": "dashboard"
+            }
+          ]
+        },
+        "editable": true,
+        "fiscalYearStartMonth": 0,
+        "graphTooltip": 2,
+        "id": 170,
+        "links": [],
+        "liveNow": false,
+        "panels": [
+          {
+            "collapsed": false,
+            "gridPos": {
+              "h": 1,
+              "w": 24,
+              "x": 0,
+              "y": 0
+            },
+            "id": 3,
+            "panels": [],
+            "title": "Tail Sampling",
+            "type": "row"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 7,
+              "w": 24,
+              "x": 0,
+              "y": 1
+            },
+            "id": 11,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "desc"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "sum by(cluster) (increase(otelcol_processor_tail_sampling_new_trace_id_received_total{cluster=~\"$cluster\"}[1m]))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": true,
+                "instant": false,
+                "legendFormat": "__auto",
+                "range": true,
+                "refId": "B",
+                "useBackend": false
+              }
+            ],
+            "title": "New Trace Ids For 1minute",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 9,
+              "w": 24,
+              "x": 0,
+              "y": 8
+            },
+            "id": 1,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "desc"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "expr": "sum by(cluster) (rate(otelcol_processor_tail_sampling_sampling_trace_dropped_too_early_total{cluster=~\"$cluster\"}[1m]))",
+                "fullMetaSearch": false,
+                "includeNullMetadata": true,
+                "instant": false,
+                "legendFormat": "__auto",
+                "range": true,
+                "refId": "A",
+                "useBackend": false
+              }
+            ],
+            "title": "Rate Of Taces Dropped Too Early",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    }
+                  ]
+                },
+                "unit": "none"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 24,
+              "x": 0,
+              "y": 17
+            },
+            "id": 8,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "multi",
+                "sort": "desc"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "expr": "sum by(cluster, job) (last_over_time(otelcol_processor_tail_sampling_sampling_traces_on_memory{cluster=~\"$cluster\"}[$__interval]))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": true,
+                "instant": false,
+                "legendFormat": "{{cluster}} - {{job}}",
+                "range": true,
+                "refId": "A",
+                "useBackend": false
+              }
+            ],
+            "title": "In Memory Traces Count",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "s"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 7,
+              "w": 24,
+              "x": 0,
+              "y": 25
+            },
+            "id": 6,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "single",
+                "sort": "desc"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "expr": "histogram_quantile(0.99, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_trace_removal_age_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.99 - {{cluster}}",
+                "range": true,
+                "refId": "99",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "expr": "histogram_quantile(0.95, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_trace_removal_age_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.95 - {{cluster}}",
+                "range": true,
+                "refId": "95",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "expr": "histogram_quantile(0.75, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_trace_removal_age_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.75 - {{cluster}}",
+                "range": true,
+                "refId": "75",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "expr": "histogram_quantile(0.5, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_trace_removal_age_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.5 - {{cluster}}",
+                "range": true,
+                "refId": "50",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "expr": "avg by(cluster) (rate(otelcol_processor_tail_sampling_sampling_trace_removal_age_bucket{cluster=~\"$cluster\"}[1m]))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "mean - {{cluster}}",
+                "range": true,
+                "refId": "mean",
+                "useBackend": false
+              }
+            ],
+            "title": "Percentile Time For Traces In Memory",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "s"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 7,
+              "w": 24,
+              "x": 0,
+              "y": 32
+            },
+            "id": 7,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "mode": "single",
+                "sort": "desc"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.99, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_bucket{cluster=~\"$cluster\"}[10m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.99 - {{cluster}}",
+                "range": true,
+                "refId": "99",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.95, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_bucket{cluster=~\"$cluster\"}[10m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.95 - {{cluster}}",
+                "range": true,
+                "refId": "95",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.75, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_bucket{cluster=~\"$cluster\"}[10m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.75 - {{cluster}}",
+                "range": true,
+                "refId": "75",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.5, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_bucket{cluster=~\"$cluster\"}[10m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.5 - {{cluster}}",
+                "range": true,
+                "refId": "50",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": " avg by( cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_bucket{cluster=~\"$cluster\"}[10m]))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "mean - {{cluster}}",
+                "range": true,
+                "refId": "mean",
+                "useBackend": false
+              }
+            ],
+            "title": "Percentile Time Of Incomming Span After Sampling Decision",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 39
+            },
+            "id": 18,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "mode": "single",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "10.4.0-65875",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "exemplar": false,
+                "expr": "sum by(cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_count[$__rate_interval]))",
+                "format": "time_series",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": true,
+                "instant": false,
+                "legendFormat": "rate - {{cluster}}",
+                "range": true,
+                "refId": "B",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "exemplar": false,
+                "expr": "sum by(cluster) (otelcol_processor_tail_sampling_sampling_late_span_age_count)",
+                "format": "time_series",
+                "fullMetaSearch": false,
+                "hide": true,
+                "includeNullMetadata": true,
+                "instant": false,
+                "legendFormat": "count - {{cluster}}",
+                "range": true,
+                "refId": "A",
+                "useBackend": false
+              }
+            ],
+            "title": "Rate of Late Spans Per Cluster",
+            "transformations": [
+              {
+                "disabled": true,
+                "id": "joinByField",
+                "options": {
+                  "mode": "outer"
+                }
+              },
+              {
+                "disabled": true,
+                "id": "organize",
+                "options": {
+                  "excludeByName": {
+                    "Time": true
+                  },
+                  "includeByName": {},
+                  "indexByName": {},
+                  "renameByName": {}
+                }
+              }
+            ],
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 39
+            },
+            "id": 19,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "mode": "single",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "10.4.0-65875",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "exemplar": false,
+                "expr": "sum by(cluster) (otelcol_processor_tail_sampling_sampling_late_span_age_count)",
+                "format": "time_series",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": true,
+                "instant": false,
+                "legendFormat": "count - {{cluster}}",
+                "range": true,
+                "refId": "A",
+                "useBackend": false
+              }
+            ],
+            "title": "Count of Late Spans Per Cluster",
+            "transformations": [
+              {
+                "disabled": true,
+                "id": "joinByField",
+                "options": {
+                  "mode": "outer"
+                }
+              },
+              {
+                "disabled": true,
+                "id": "organize",
+                "options": {
+                  "excludeByName": {
+                    "Time": true
+                  },
+                  "includeByName": {},
+                  "indexByName": {},
+                  "renameByName": {}
+                }
+              }
+            ],
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "µs"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 7,
+              "w": 24,
+              "x": 0,
+              "y": 47
+            },
+            "id": 12,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "mode": "single",
+                "sort": "desc"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.99, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_decision_timer_latency_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.99 - {{cluster}}",
+                "range": true,
+                "refId": "99",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.95, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_decision_timer_latency_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.95 - {{cluster}}",
+                "range": true,
+                "refId": "95",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.75, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_decision_timer_latency_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.75 - {{cluster}}",
+                "range": true,
+                "refId": "75",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.5, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_decision_timer_latency_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.5 - {{cluster}}",
+                "range": true,
+                "refId": "50",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "avg by(cluster) (rate(otelcol_processor_tail_sampling_sampling_decision_timer_latency_bucket{cluster=~\"$cluster\"}[1m]))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "mean - {{cluster}}",
+                "range": true,
+                "refId": "mean",
+                "useBackend": false
+              }
+            ],
+            "title": "Percentile Processing Time Per Decision Run",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "custom": {
+                  "align": "center",
+                  "cellOptions": {
+                    "type": "auto"
+                  },
+                  "inspect": false
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 8,
+              "x": 0,
+              "y": 54
+            },
+            "id": 5,
+            "options": {
+              "cellHeight": "md",
+              "footer": {
+                "countRows": false,
+                "fields": "",
+                "reducer": [
+                  "sum"
+                ],
+                "show": false
+              },
+              "showHeader": true
+            },
+            "pluginVersion": "10.4.0-66955",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "exemplar": false,
+                "expr": "sum by(cluster) (otelcol_processor_tail_sampling_sampling_policy_evaluation_error_total{cluster=~\"$cluster\"})",
+                "format": "table",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": true,
+                "instant": true,
+                "legendFormat": "__auto",
+                "range": false,
+                "refId": "B",
+                "useBackend": false
+              }
+            ],
+            "title": "Sum Of Policy Evaluation Errors per Cluster",
+            "transformations": [
+              {
+                "id": "organize",
+                "options": {
+                  "excludeByName": {
+                    "Time": true
+                  },
+                  "includeByName": {},
+                  "indexByName": {},
+                  "renameByName": {}
+                }
+              }
+            ],
+            "type": "table"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "custom": {
+                  "align": "center",
+                  "cellOptions": {
+                    "type": "auto"
+                  },
+                  "inspect": false
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 7,
+              "x": 8,
+              "y": 54
+            },
+            "id": 10,
+            "options": {
+              "cellHeight": "md",
+              "footer": {
+                "countRows": false,
+                "fields": "",
+                "reducer": [
+                  "sum"
+                ],
+                "show": false
+              },
+              "showHeader": true
+            },
+            "pluginVersion": "10.4.0-66955",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "exemplar": false,
+                "expr": "sum by(cluster) (otelcol_processor_tail_sampling_sampling_trace_dropped_too_early_total{cluster=~\"$cluster\"})",
+                "format": "table",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": true,
+                "instant": true,
+                "legendFormat": "__auto",
+                "range": false,
+                "refId": "B",
+                "useBackend": false
+              }
+            ],
+            "title": "Sum Of Dropped Too Early Traces per Cluster",
+            "transformations": [
+              {
+                "id": "organize",
+                "options": {
+                  "excludeByName": {
+                    "Time": true
+                  },
+                  "includeByName": {},
+                  "indexByName": {},
+                  "renameByName": {}
+                }
+              }
+            ],
+            "type": "table"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "custom": {
+                  "align": "center",
+                  "cellOptions": {
+                    "type": "auto"
+                  },
+                  "inspect": false
+                },
+                "mappings": [],
+                "max": 600,
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "s"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 9,
+              "x": 15,
+              "y": 54
+            },
+            "id": 17,
+            "options": {
+              "cellHeight": "md",
+              "footer": {
+                "countRows": false,
+                "fields": "",
+                "reducer": [
+                  "sum"
+                ],
+                "show": false
+              },
+              "showHeader": true,
+              "sortBy": [
+                {
+                  "desc": true,
+                  "displayName": "Field"
+                }
+              ]
+            },
+            "pluginVersion": "10.4.0-66955",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.99, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_bucket{cluster=~\"$cluster\"}[10m])))",
+                "format": "time_series",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.99 - {{cluster}}",
+                "range": true,
+                "refId": "99",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.95, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_bucket{cluster=~\"$cluster\"}[10m])))",
+                "format": "time_series",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.95 - {{cluster}}",
+                "range": true,
+                "refId": "95",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.90, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_bucket{cluster=~\"$cluster\"}[10m])))",
+                "format": "time_series",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.90 - {{cluster}}",
+                "range": true,
+                "refId": "90",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.75, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_bucket{cluster=~\"$cluster\"}[10m])))",
+                "format": "time_series",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.75 - {{cluster}}",
+                "range": true,
+                "refId": "75",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.5, sum by(le, cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_bucket{cluster=~\"$cluster\"}[10m])))",
+                "format": "time_series",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.5 - {{cluster}}",
+                "range": true,
+                "refId": "50",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": " avg by( cluster) (rate(otelcol_processor_tail_sampling_sampling_late_span_age_bucket{cluster=~\"$cluster\"}[10m]))",
+                "format": "time_series",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "mean - {{cluster}}",
+                "range": true,
+                "refId": "mean",
+                "useBackend": false
+              }
+            ],
+            "title": "Time per Percentile Of Incomming Span After Sampling Decision",
+            "transformations": [
+              {
+                "id": "joinByField",
+                "options": {}
+              },
+              {
+                "id": "organize",
+                "options": {
+                  "excludeByName": {
+                    "Time": false
+                  },
+                  "includeByName": {},
+                  "indexByName": {},
+                  "renameByName": {
+                    "Value #50": "50% percentile",
+                    "Value #75": "75% percentile",
+                    "Value #95": "95% percentile",
+                    "Value #99": "99% percentile",
+                    "Value #mean": "mean",
+                    "cluster": ""
+                  }
+                }
+              },
+              {
+                "id": "reduce",
+                "options": {
+                  "includeTimeField": false,
+                  "labelsToFields": false,
+                  "mode": "seriesToRows",
+                  "reducers": [
+                    "max",
+                    "mean",
+                    "min"
+                  ]
+                }
+              }
+            ],
+            "type": "table"
+          },
+          {
+            "collapsed": false,
+            "gridPos": {
+              "h": 1,
+              "w": 24,
+              "x": 0,
+              "y": 62
+            },
+            "id": 4,
+            "panels": [],
+            "title": "Load Balancer",
+            "type": "row"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 24,
+              "x": 0,
+              "y": 63
+            },
+            "id": 13,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "exemplar": false,
+                "expr": "sum by(cluster, success) (rate(otelcol_loadbalancer_backend_outcome_total{cluster=~\"$cluster\"}[1m]))",
+                "fullMetaSearch": false,
+                "includeNullMetadata": true,
+                "instant": false,
+                "interval": "",
+                "legendFormat": "success: {{success}} - {{cluster}}",
+                "range": true,
+                "refId": "A",
+                "useBackend": false
+              }
+            ],
+            "title": "Rate of Resolution Success",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "ms"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 7,
+              "w": 24,
+              "x": 0,
+              "y": 71
+            },
+            "id": 14,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "mode": "single",
+                "sort": "desc"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.99, sum by(le, cluster) (rate(otelcol_loadbalancer_backend_latency_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.99 - {{cluster}}",
+                "range": true,
+                "refId": "99",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.95, sum by(le, cluster) (rate(otelcol_loadbalancer_backend_latency_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.95 - {{cluster}}",
+                "range": true,
+                "refId": "95",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.75, sum by(le, cluster) (rate(otelcol_loadbalancer_backend_latency_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.75 - {{cluster}}",
+                "range": true,
+                "refId": "75",
+                "useBackend": false
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "code",
+                "expr": "histogram_quantile(0.5, sum by(le, cluster) (rate(otelcol_loadbalancer_backend_latency_bucket{cluster=~\"$cluster\"}[1m])))",
+                "fullMetaSearch": false,
+                "hide": false,
+                "includeNullMetadata": false,
+                "instant": false,
+                "legendFormat": "0.5 - {{cluster}}",
+                "range": true,
+                "refId": "50",
+                "useBackend": false
+              }
+            ],
+            "title": "Percentile Latency",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 9,
+              "w": 12,
+              "x": 0,
+              "y": 78
+            },
+            "id": 15,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "exemplar": false,
+                "expr": "sum by(cluster) (rate(otelcol_loadbalancer_num_backend_updates_total{cluster=~\"$cluster\"}[1m]))",
+                "fullMetaSearch": false,
+                "includeNullMetadata": true,
+                "instant": false,
+                "interval": "",
+                "legendFormat": "success: {{success}} - {{cluster}}",
+                "range": true,
+                "refId": "A",
+                "useBackend": false
+              }
+            ],
+            "title": "Rate of Backend Monitor Collector Updates",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 9,
+              "w": 12,
+              "x": 12,
+              "y": 78
+            },
+            "id": 16,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "mode": "multi",
+                "sort": "none"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "disableTextWrap": false,
+                "editorMode": "builder",
+                "exemplar": false,
+                "expr": "sum by(cluster) (last_over_time(otelcol_loadbalancer_num_backends{cluster=~\"$cluster\"}[$__interval]))",
+                "fullMetaSearch": false,
+                "includeNullMetadata": true,
+                "instant": false,
+                "interval": "",
+                "legendFormat": "{{cluster}}",
+                "range": true,
+                "refId": "A",
+                "useBackend": false
+              }
+            ],
+            "title": "Count of Gateway Collectors",
+            "type": "timeseries"
+          }
+        ],
+        "refresh": "",
+        "schemaVersion": 39,
+        "tags": [],
+        "templating": {
+          "list": [
+            {
+              "current": {
+                "selected": true,
+                "text": [
+                  "All"
+                ],
+                "value": [
+                  "$__all"
+                ]
+              },
+              "datasource": {
+                "type": "prometheus",
+                "uid": "grafanacloud-prom"
+              },
+              "definition": "label_values(otelcol_process_uptime_total,cluster)",
+              "hide": 0,
+              "includeAll": true,
+              "multi": true,
+              "name": "cluster",
+              "options": [],
+              "query": {
+                "qryType": 1,
+                "query": "label_values(otelcol_process_uptime_total,cluster)",
+                "refId": "PrometheusVariableQueryEditor-VariableQuery"
+              },
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 0,
+              "type": "query"
+            }
+          ]
+        },
+        "time": {
+          "from": "now-24h",
+          "to": "now"
+        },
+        "timeRangeUpdatedDuringEditOrView": false,
+        "timepicker": {},
+        "timezone": "",
+        "title": "Otel Collector Support Metrics",
+        "uid": "b25ba211-73e9-4e26-b284-1118905f141eA",
+        "weekStart": ""
+      }

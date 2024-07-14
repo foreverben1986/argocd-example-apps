@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-info-map
+  namespace: observability
+data:
+  cluster-name: "azure-cncdp-ctrpln-preview"

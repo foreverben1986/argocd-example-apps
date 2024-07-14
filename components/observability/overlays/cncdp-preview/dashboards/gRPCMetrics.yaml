@@ -1,0 +1,1449 @@
+apiVersion: oss.grafana.crossplane.io/v1alpha1
+kind: Dashboard
+metadata:
+  name: grpc-metrics-opentelemetry-iac-dashboard
+spec:
+  providerConfigRef:
+    name: grafana-cloud-provider-config
+  forProvider:
+    folder: "Bedrock-IAC"
+    configJson: |
+      {
+        "annotations": {
+          "list": [
+            {
+              "builtIn": 1,
+              "datasource": {
+                "type": "grafana",
+                "uid": "-- Grafana --"
+              },
+              "enable": true,
+              "hide": true,
+              "iconColor": "rgba(0, 211, 255, 1)",
+              "name": "Annotations & Alerts",
+              "target": {
+                "limit": 100,
+                "matchAny": false,
+                "tags": [],
+                "type": "dashboard"
+              },
+              "type": "dashboard"
+            }
+          ]
+        },
+        "editable": true,
+        "fiscalYearStartMonth": 0,
+        "gnetId": 18860,
+        "graphTooltip": 0,
+        "id": 181,
+        "links": [],
+        "liveNow": false,
+        "panels": [
+          {
+            "gridPos": {
+              "h": 1,
+              "w": 24,
+              "x": 0,
+              "y": 0
+            },
+            "id": 17,
+            "title": "gRPC server",
+            "type": "row"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "custom": {
+                  "align": "center",
+                  "cellOptions": {
+                    "type": "auto"
+                  },
+                  "filterable": false,
+                  "inspect": false
+                },
+                "decimals": 0,
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    }
+                  ]
+                }
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byRegexp",
+                    "options": "/.*Percentage/"
+                  },
+                  "properties": [
+                    {
+                      "id": "unit",
+                      "value": "percentunit"
+                    }
+                  ]
+                }
+              ]
+            },
+            "gridPos": {
+              "h": 11,
+              "w": 24,
+              "x": 0,
+              "y": 1
+            },
+            "id": 13,
+            "options": {
+              "cellHeight": "md",
+              "footer": {
+                "countRows": false,
+                "fields": "",
+                "reducer": [
+                  "sum"
+                ],
+                "show": false
+              },
+              "showHeader": true,
+              "sortBy": [
+                {
+                  "desc": true,
+                  "displayName": "Total Requests"
+                }
+              ]
+            },
+            "pluginVersion": "11.1.0-68838",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "editorMode": "code",
+                "exemplar": true,
+                "expr": "sum(rate(rpc_server_duration_milliseconds_count{cluster=~\"$${env}\", k8s_namespace_name=\"$namespace\", rpc_method=~\"$rpc_method\"}[$__rate_interval])) by (cluster, rpc_method, rpc_service, rpc_grpc_status_code) * $__interval_ms / 1000",
+                "format": "table",
+                "hide": false,
+                "instant": false,
+                "interval": "",
+                "legendFormat": "x",
+                "range": true,
+                "refId": "A"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "editorMode": "code",
+                "exemplar": true,
+                "expr": "sum(rate(rpc_server_duration_milliseconds_count{cluster=~\"$${env}\", k8s_namespace_name=\"$namespace\", rpc_method=~\"$rpc_method\", rpc_grpc_status_code=\"0\"}[$__rate_interval])) by (cluster, rpc_method, rpc_service, rpc_grpc_status_code)  * $__interval_ms / 1000 or on() vector(0)",
+                "format": "table",
+                "hide": false,
+                "instant": false,
+                "interval": "",
+                "legendFormat": "x",
+                "range": true,
+                "refId": "B"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "editorMode": "code",
+                "exemplar": true,
+                "expr": "sum(rate(rpc_server_duration_milliseconds_count{cluster=~\"$${env}\", k8s_namespace_name=\"$namespace\", rpc_method=~\"$rpc_method\", rpc_grpc_status_code!~\"0\"}[$__rate_interval])) by (cluster, rpc_method, rpc_service, rpc_grpc_status_code)  * $__interval_ms / 1000 or on() vector(0)",
+                "format": "table",
+                "hide": false,
+                "instant": false,
+                "interval": "",
+                "legendFormat": "x",
+                "range": true,
+                "refId": "C"
+              }
+            ],
+            "title": "Requests statistics (server)",
+            "transformations": [
+              {
+                "id": "merge",
+                "options": {}
+              },
+              {
+                "id": "groupBy",
+                "options": {
+                  "fields": {
+                    "(histogram_quantile(0.95, sum by(le) (rate({__name__=~\"http_server_request_duration_seconds_bucket\", cluster=~\"gke-bdrck-wrkld-preview\", k8s_namespace_name=~\"cvc-package-tree\"}[4m0s]))))": {
+                      "aggregations": [
+                        "mean"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Time": {
+                      "aggregations": []
+                    },
+                    "Value #A": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #B": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #C": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #D": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #E": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #F": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #G": {
+                      "aggregations": [
+                        "mean"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #H": {
+                      "aggregations": [
+                        "mean"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #I": {
+                      "aggregations": [
+                        "allValues"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "agent": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "cluster": {
+                      "aggregations": []
+                    },
+                    "http_method": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "groupby"
+                    },
+                    "http_request_method": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "http_route": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "instance": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "job": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "method": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "path": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "rpc_grpc_status_code": {
+                      "aggregations": []
+                    },
+                    "rpc_method": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "rpc_service": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "status": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "organize",
+                "options": {
+                  "excludeByName": {
+                    "Value #F (sum)": true,
+                    "Value #G (mean)": true,
+                    "instance": true,
+                    "job": true
+                  },
+                  "includeByName": {},
+                  "indexByName": {},
+                  "renameByName": {
+                    "Value #A (sum)": "Total Requests",
+                    "Value #B (sum)": "Success",
+                    "Value #C (sum)": "Error",
+                    "Value #D (sum)": "4xx",
+                    "Value #E (sum)": "5xx",
+                    "Value #F (sum)": "Total time",
+                    "Value #G (mean)": "Avg time",
+                    "Value #G (sum)": "Avg duration",
+                    "Value #H (mean)": "Duration (95%)",
+                    "Value #H (sum)": "Duration (95%)",
+                    "http_method": "Method",
+                    "http_request_method": "Method",
+                    "http_route": "Route"
+                  }
+                }
+              },
+              {
+                "disabled": true,
+                "id": "calculateField",
+                "options": {
+                  "alias": "Errors",
+                  "binary": {
+                    "left": "3xx",
+                    "reducer": "sum",
+                    "right": "4xx"
+                  },
+                  "mode": "reduceRow",
+                  "reduce": {
+                    "include": [
+                      "Error"
+                    ],
+                    "reducer": "sum"
+                  },
+                  "replaceFields": false
+                }
+              },
+              {
+                "id": "calculateField",
+                "options": {
+                  "alias": "Error Percentage",
+                  "binary": {
+                    "left": "Error",
+                    "operator": "/",
+                    "reducer": "sum",
+                    "right": "Total Requests"
+                  },
+                  "mode": "binary",
+                  "reduce": {
+                    "reducer": "sum"
+                  }
+                }
+              },
+              {
+                "id": "filterByValue",
+                "options": {
+                  "filters": [
+                    {
+                      "config": {
+                        "id": "equal",
+                        "options": {
+                          "value": ""
+                        }
+                      },
+                      "fieldName": "Method"
+                    },
+                    {
+                      "config": {
+                        "id": "equal",
+                        "options": {
+                          "value": ""
+                        }
+                      },
+                      "fieldName": "Route"
+                    }
+                  ],
+                  "match": "any",
+                  "type": "exclude"
+                }
+              }
+            ],
+            "type": "table"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "description": "",
+            "gridPos": {
+              "h": 16,
+              "w": 4,
+              "x": 0,
+              "y": 12
+            },
+            "id": 12,
+            "options": {
+              "code": {
+                "language": "plaintext",
+                "showLineNumbers": false,
+                "showMiniMap": false
+              },
+              "content": "`OK (0)`\n\n`CANCELLED (1)`\n\n`UNKNOWN (2)`\n\n`INVALID_ARGUMENT (3)`\n\n`DEADLINE_EXCEEDED (4)`\n\n`NOT_FOUND (5)`\n\n`ALREADY_EXISTS (6)`\n\n`PERMISSION_DENIED (7)`\n\n`RESOURCE_EXHAUSTED (8)`\n\n`FAILED_PRECONDITION (9)`\n\n`ABORTED (10)`\n\n`OUT_OF_RANGE (11)`\n\n`UNIMPLEMENTED (12)`\n\n`INTERNAL ERROR (13)`\n\n`UNAVAILABLE (14)`\n\n`DATA_LOSS (15)`\n\n`UNAUTHENTICATED (16)`\n\n",
+              "mode": "markdown"
+            },
+            "pluginVersion": "11.1.0-68838",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "refId": "A"
+              }
+            ],
+            "title": "gRPC Status code Description",
+            "type": "text"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "decimals": 0,
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 20,
+              "x": 4,
+              "y": 12
+            },
+            "id": 8,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "single",
+                "sort": "none"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "editorMode": "code",
+                "expr": "(sum(rate(rpc_server_duration_milliseconds_count{cluster=~\"$${env}\", k8s_namespace_name=~\"$namespace\", rpc_method=~\"$rpc_method\"}[$__rate_interval])) by ( rpc_method, rpc_service, rpc_grpc_status_code)) * $__interval_ms / 1000",
+                "hide": false,
+                "legendFormat": "__auto",
+                "range": true,
+                "refId": "A"
+              }
+            ],
+            "title": "Requests Count",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "decimals": 0,
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 20,
+              "x": 4,
+              "y": 20
+            },
+            "id": 11,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "single",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "10.4.0-65039",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "editorMode": "code",
+                "expr": "sum(rate(rpc_server_duration_milliseconds_count{cluster=~\"$${env}\", k8s_namespace_name=~\"$namespace\", rpc_method=~\"$rpc_method\", rpc_grpc_status_code!~\"0\"}[$__rate_interval])) by (rpc_method, rpc_service, rpc_grpc_status_code) * $__interval_ms / 1000",
+                "hide": false,
+                "legendFormat": "__auto",
+                "range": true,
+                "refId": "AA"
+              }
+            ],
+            "title": "Errors Count",
+            "type": "timeseries"
+          },
+          {
+            "collapsed": false,
+            "gridPos": {
+              "h": 1,
+              "w": 24,
+              "x": 0,
+              "y": 28
+            },
+            "id": 16,
+            "panels": [],
+            "title": "gRPC clients",
+            "type": "row"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "custom": {
+                  "align": "center",
+                  "cellOptions": {
+                    "type": "auto"
+                  },
+                  "filterable": false,
+                  "inspect": false
+                },
+                "decimals": 0,
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    }
+                  ]
+                }
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byRegexp",
+                    "options": "/.*Percentage/"
+                  },
+                  "properties": [
+                    {
+                      "id": "unit",
+                      "value": "percentunit"
+                    }
+                  ]
+                }
+              ]
+            },
+            "gridPos": {
+              "h": 11,
+              "w": 24,
+              "x": 0,
+              "y": 29
+            },
+            "id": 7,
+            "options": {
+              "cellHeight": "md",
+              "footer": {
+                "countRows": false,
+                "fields": "",
+                "reducer": [
+                  "sum"
+                ],
+                "show": false
+              },
+              "showHeader": true,
+              "sortBy": [
+                {
+                  "desc": true,
+                  "displayName": "Error rate"
+                }
+              ]
+            },
+            "pluginVersion": "11.0.0-68643",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "editorMode": "code",
+                "exemplar": true,
+                "expr": "sum(rate(rpc_client_duration_milliseconds_count{cluster=~\"$${env}\", k8s_namespace_name=\"$namespace\", rpc_method=~\"$rpc_method\"}[$__rate_interval])) by (cluster, rpc_method, rpc_service, rpc_grpc_status_code) * $__interval_ms / 1000",
+                "format": "table",
+                "hide": false,
+                "instant": false,
+                "interval": "",
+                "legendFormat": "x",
+                "range": true,
+                "refId": "A"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "editorMode": "code",
+                "exemplar": true,
+                "expr": "sum(rate(rpc_client_duration_milliseconds_count{cluster=~\"$${env}\", k8s_namespace_name=\"$namespace\", rpc_method=~\"$rpc_method\", rpc_grpc_status_code=\"0\"}[$__rate_interval])) by (cluster, rpc_method, rpc_service, rpc_grpc_status_code)  * $__interval_ms / 1000 or on() vector(0)",
+                "format": "table",
+                "hide": false,
+                "instant": false,
+                "interval": "",
+                "legendFormat": "x",
+                "range": true,
+                "refId": "B"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "editorMode": "code",
+                "exemplar": true,
+                "expr": "sum(rate(rpc_client_duration_milliseconds_count{cluster=~\"$${env}\", k8s_namespace_name=\"$namespace\", rpc_method=~\"$rpc_method\", rpc_grpc_status_code!~\"0\"}[$__rate_interval])) by (cluster, rpc_method, rpc_service, rpc_grpc_status_code)  * $__interval_ms / 1000 or on() vector(0)",
+                "format": "table",
+                "hide": false,
+                "instant": false,
+                "interval": "",
+                "legendFormat": "x",
+                "range": true,
+                "refId": "C"
+              }
+            ],
+            "title": "Requests statistics (client)",
+            "transformations": [
+              {
+                "id": "merge",
+                "options": {}
+              },
+              {
+                "id": "groupBy",
+                "options": {
+                  "fields": {
+                    "(histogram_quantile(0.95, sum by(le) (rate({__name__=~\"http_server_request_duration_seconds_bucket\", cluster=~\"gke-bdrck-wrkld-preview\", k8s_namespace_name=~\"cvc-package-tree\"}[4m0s]))))": {
+                      "aggregations": [
+                        "mean"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Time": {
+                      "aggregations": []
+                    },
+                    "Value #A": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #B": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #C": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #D": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #E": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #F": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #G": {
+                      "aggregations": [
+                        "mean"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #H": {
+                      "aggregations": [
+                        "mean"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "Value #I": {
+                      "aggregations": [
+                        "allValues"
+                      ],
+                      "operation": "aggregate"
+                    },
+                    "agent": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "cluster": {
+                      "aggregations": []
+                    },
+                    "http_method": {
+                      "aggregations": [
+                        "sum"
+                      ],
+                      "operation": "groupby"
+                    },
+                    "http_request_method": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "http_route": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "instance": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "job": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "method": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "path": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "rpc_grpc_status_code": {
+                      "aggregations": []
+                    },
+                    "rpc_method": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "rpc_service": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    },
+                    "status": {
+                      "aggregations": [],
+                      "operation": "groupby"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "organize",
+                "options": {
+                  "excludeByName": {
+                    "Value #F (sum)": true,
+                    "Value #G (mean)": true,
+                    "instance": true,
+                    "job": true
+                  },
+                  "includeByName": {},
+                  "indexByName": {},
+                  "renameByName": {
+                    "Value #A (sum)": "Total Requests",
+                    "Value #B (sum)": "Success",
+                    "Value #C (sum)": "Error",
+                    "Value #D (sum)": "4xx",
+                    "Value #E (sum)": "5xx",
+                    "Value #F (sum)": "Total time",
+                    "Value #G (mean)": "Avg time",
+                    "Value #G (sum)": "Avg duration",
+                    "Value #H (mean)": "Duration (95%)",
+                    "Value #H (sum)": "Duration (95%)",
+                    "http_method": "Method",
+                    "http_request_method": "Method",
+                    "http_route": "Route"
+                  }
+                }
+              },
+              {
+                "disabled": true,
+                "id": "calculateField",
+                "options": {
+                  "alias": "Errors",
+                  "binary": {
+                    "left": "3xx",
+                    "reducer": "sum",
+                    "right": "4xx"
+                  },
+                  "mode": "reduceRow",
+                  "reduce": {
+                    "include": [
+                      "Error"
+                    ],
+                    "reducer": "sum"
+                  },
+                  "replaceFields": false
+                }
+              },
+              {
+                "id": "calculateField",
+                "options": {
+                  "alias": "Error Percentage",
+                  "binary": {
+                    "left": "Error",
+                    "operator": "/",
+                    "reducer": "sum",
+                    "right": "Total Requests"
+                  },
+                  "mode": "binary",
+                  "reduce": {
+                    "reducer": "sum"
+                  }
+                }
+              },
+              {
+                "id": "filterByValue",
+                "options": {
+                  "filters": [
+                    {
+                      "config": {
+                        "id": "equal",
+                        "options": {
+                          "value": ""
+                        }
+                      },
+                      "fieldName": "Method"
+                    },
+                    {
+                      "config": {
+                        "id": "equal",
+                        "options": {
+                          "value": ""
+                        }
+                      },
+                      "fieldName": "Route"
+                    }
+                  ],
+                  "match": "any",
+                  "type": "exclude"
+                }
+              }
+            ],
+            "type": "table"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "decimals": 0,
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 40
+            },
+            "id": 15,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "single",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "10.4.0-65039",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "editorMode": "code",
+                "expr": "sum(rate(rpc_client_duration_milliseconds_count{cluster=~\"$${env}\", k8s_namespace_name=~\"$namespace\", rpc_method=~\"$rpc_method\", rpc_grpc_status_code!~\"0\"}[$__rate_interval])) by ( rpc_method, rpc_service, rpc_grpc_status_code) * $__interval_ms / 1000",
+                "hide": false,
+                "legendFormat": "__auto",
+                "range": true,
+                "refId": "AA"
+              }
+            ],
+            "title": "Errors Count (client)",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "grafanacloud-prom"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "decimals": 0,
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 40
+            },
+            "id": 14,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "maxHeight": 600,
+                "mode": "single",
+                "sort": "none"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "grafanacloud-prom"
+                },
+                "editorMode": "code",
+                "expr": "(sum(rate(rpc_client_duration_milliseconds_count{cluster=~\"$${env}\", k8s_namespace_name=~\"$namespace\", rpc_method=~\"$rpc_method\"}[$__rate_interval])) by ( rpc_method, rpc_service, rpc_grpc_status_code)) * $__interval_ms / 1000",
+                "hide": false,
+                "legendFormat": "{{label_name}}",
+                "range": true,
+                "refId": "A"
+              }
+            ],
+            "title": "Requests Count (client)",
+            "type": "timeseries"
+          }
+        ],
+        "refresh": "5s",
+        "revision": 1,
+        "schemaVersion": 39,
+        "tags": [],
+        "templating": {
+          "list": [
+            {
+              "current": {
+                "selected": false,
+                "text": "grafanacloud-bedrock-prom",
+                "value": "grafanacloud-prom"
+              },
+              "description": "Choose a prometheus data source",
+              "hide": 2,
+              "includeAll": false,
+              "label": "datasource",
+              "multi": false,
+              "name": "datasource",
+              "options": [],
+              "query": "prometheus",
+              "queryValue": "",
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "type": "datasource"
+            },
+            {
+              "current": {
+                "selected": false,
+                "text": "gke-bdrck-wrkld-preview",
+                "value": "gke-bdrck-wrkld-preview"
+              },
+              "datasource": {
+                "type": "prometheus",
+                "uid": "grafanacloud-prom"
+              },
+              "definition": "label_values(cluster)",
+              "hide": 0,
+              "includeAll": false,
+              "label": "env",
+              "multi": false,
+              "name": "env",
+              "options": [],
+              "query": {
+                "qryType": 1,
+                "query": "label_values(cluster)",
+                "refId": "PrometheusVariableQueryEditor-VariableQuery"
+              },
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 0,
+              "type": "query"
+            },
+            {
+              "current": {
+                "selected": false,
+                "text": "cvc-au-particle",
+                "value": "cvc-au-particle"
+              },
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$${datasource}"
+              },
+              "definition": "label_values({cluster=\"$env\", k8s_namespace_name=~\"$rpc_server|$rpc_client\"},k8s_namespace_name)",
+              "hide": 0,
+              "includeAll": true,
+              "label": "namespace",
+              "multi": false,
+              "name": "namespace",
+              "options": [],
+              "query": {
+                "qryType": 1,
+                "query": "label_values({cluster=\"$env\", k8s_namespace_name=~\"$rpc_server|$rpc_client\"},k8s_namespace_name)",
+                "refId": "PrometheusVariableQueryEditor-VariableQuery"
+              },
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 1,
+              "type": "query"
+            },
+            {
+              "current": {
+                "selected": true,
+                "text": [
+                  "au-particle-7dbc96d858-t9pxj"
+                ],
+                "value": [
+                  "au-particle-7dbc96d858-t9pxj"
+                ]
+              },
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$${datasource}"
+              },
+              "definition": "label_values({cluster=\"$env\", k8s_namespace_name=\"$namespace\"},k8s_pod_name)",
+              "hide": 2,
+              "includeAll": false,
+              "label": "pod",
+              "multi": true,
+              "name": "pod",
+              "options": [],
+              "query": {
+                "qryType": 1,
+                "query": "label_values({cluster=\"$env\", k8s_namespace_name=\"$namespace\"},k8s_pod_name)",
+                "refId": "PrometheusVariableQueryEditor-VariableQuery"
+              },
+              "refresh": 2,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 1,
+              "type": "query"
+            },
+            {
+              "allValue": "",
+              "current": {
+                "selected": true,
+                "text": [
+                  "All"
+                ],
+                "value": [
+                  "$__all"
+                ]
+              },
+              "datasource": {
+                "type": "prometheus",
+                "uid": "grafanacloud-prom"
+              },
+              "definition": "label_values(http_route)",
+              "hide": 2,
+              "includeAll": true,
+              "multi": true,
+              "name": "route",
+              "options": [],
+              "query": {
+                "query": "label_values(http_route)",
+                "refId": "PrometheusVariableQueryEditor-VariableQuery"
+              },
+              "refresh": 1,
+              "regex": "^(?!.*readyz*|.*health*).*$",
+              "skipUrlSync": false,
+              "sort": 0,
+              "type": "query"
+            },
+            {
+              "current": {
+                "selected": false,
+                "text": "All",
+                "value": "$__all"
+              },
+              "datasource": {
+                "type": "prometheus",
+                "uid": "grafanacloud-prom"
+              },
+              "definition": "label_values(rpc_method)",
+              "hide": 0,
+              "includeAll": true,
+              "label": "rpc_method",
+              "multi": false,
+              "name": "rpc_method",
+              "options": [],
+              "query": {
+                "qryType": 1,
+                "query": "label_values(rpc_method)",
+                "refId": "PrometheusVariableQueryEditor-VariableQuery"
+              },
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 0,
+              "type": "query"
+            },
+            {
+              "current": {
+                "selected": true,
+                "text": [
+                  "0"
+                ],
+                "value": [
+                  "0"
+                ]
+              },
+              "datasource": {
+                "type": "prometheus",
+                "uid": "grafanacloud-prom"
+              },
+              "definition": "label_values(rpc_grpc_status_code)",
+              "hide": 2,
+              "includeAll": true,
+              "label": "grpc_status_code",
+              "multi": true,
+              "name": "grpc_status_code",
+              "options": [],
+              "query": {
+                "qryType": 1,
+                "query": "label_values(rpc_grpc_status_code)",
+                "refId": "PrometheusVariableQueryEditor-VariableQuery"
+              },
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 0,
+              "type": "query"
+            },
+            {
+              "current": {
+                "selected": false,
+                "text": "All",
+                "value": "$__all"
+              },
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$${datasource}"
+              },
+              "definition": "label_values(rpc_server_duration_milliseconds_count{cluster=\"$env\"},k8s_namespace_name)",
+              "hide": 2,
+              "includeAll": true,
+              "label": "namespace with rpc_server",
+              "multi": false,
+              "name": "rpc_server",
+              "options": [],
+              "query": {
+                "qryType": 1,
+                "query": "label_values(rpc_server_duration_milliseconds_count{cluster=\"$env\"},k8s_namespace_name)",
+                "refId": "PrometheusVariableQueryEditor-VariableQuery"
+              },
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 1,
+              "type": "query"
+            },
+            {
+              "current": {
+                "selected": false,
+                "text": "All",
+                "value": "$__all"
+              },
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$${datasource}"
+              },
+              "definition": "label_values(rpc_client_duration_milliseconds_count{cluster=\"$env\"},k8s_namespace_name)",
+              "hide": 2,
+              "includeAll": true,
+              "label": "namespace with rpc_client",
+              "multi": false,
+              "name": "rpc_client",
+              "options": [],
+              "query": {
+                "qryType": 1,
+                "query": "label_values(rpc_client_duration_milliseconds_count{cluster=\"$env\"},k8s_namespace_name)",
+                "refId": "PrometheusVariableQueryEditor-VariableQuery"
+              },
+              "refresh": 1,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 1,
+              "type": "query"
+            }
+          ]
+        },
+        "time": {
+          "from": "now-2d",
+          "to": "now"
+        },
+        "timeRangeUpdatedDuringEditOrView": false,
+        "timepicker": {},
+        "timezone": "",
+        "title": "gRPC Metrics OpenTelemetry",
+        "uid": "gRPC-Metrics-OpenTelemetry",
+        "version": 84,
+        "weekStart": ""
+      }

@@ -1,0 +1,206 @@
+mode: deployment
+
+replicaCount: 1
+
+presets:
+  kubernetesAttributes:
+    enabled: true
+
+resources:
+  limits:
+    cpu: 3000m
+    memory: 3Gi
+
+extraEnvs:
+  - name: CLUSTER_NAME
+    valueFrom:
+      configMapKeyRef:
+        name: cluster-info-map
+        key: cluster-name
+  - name: MIMIR_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirUser
+  - name: MIMIR_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirPass
+  - name: LOKI_USER
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiUser
+  - name: LOKI_PASS
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiPass
+  - name: LOKI_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: lokiEndpoint
+  - name: MIMIR_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: grafana-cloud
+        key: mimirEndpoint
+
+clusterRole:
+  rules:
+  - apiGroups:
+    - ''
+    resources:
+    - 'services'
+    - 'events'
+    - 'namespaces'
+    - 'namespaces/status'
+    - 'nodes'
+    - 'nodes/spec'
+    - 'pods'
+    - 'pods/status'
+    - 'replicationcontrollers'
+    - 'replicationcontrollers/status'
+    - 'resourcequotas'
+    - 'nodes/proxy'
+    - 'endpoints'
+    verbs:
+    - 'get'
+    - 'list'
+    - 'watch'
+  - apiGroups:
+    - apps
+    resources:
+    - 'daemonsets'
+    - 'deployments'
+    - 'replicasets'
+    - 'statefulsets'
+    verbs:
+    - 'get'
+    - 'list'
+    - 'watch'
+  - apiGroups:
+    - extensions
+    resources:
+    - daemonsets
+    - deployments
+    - replicasets
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - batch
+    resources:
+    - jobs
+    - cronjobs
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - autoscaling
+    resources:
+    - horizontalpodautoscalers
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - 'events.k8s.io'
+    resources:
+    - events
+    verbs:
+    - watch
+  - nonResourceURLs:
+    - /metrics
+    verbs:
+    - get
+
+config:
+  receivers:
+
+    prometheus:
+      config:
+        scrape_configs:
+        - job_name: otel-col-gateway1-metrics
+          scrape_interval: 15s
+          static_configs:
+            - targets:
+                - ${MY_POD_IP}:8888
+
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  extensions:
+    basicauth/metrics:
+      client_auth:
+        username: "${MIMIR_USER}"
+        password: "${MIMIR_PASS}"
+
+    basicauth/logs:
+      client_auth:
+        username: "${LOKI_USER}"
+        password: "${LOKI_PASS}"
+
+  exporters:
+    prometheusremotewrite:
+      external_labels:
+        cluster: "${CLUSTER_NAME}"
+      endpoint: "${MIMIR_ENDPOINT}"
+      auth:
+        authenticator: basicauth/metrics
+      resource_to_telemetry_conversion:
+        enabled: true
+      target_info:
+        enabled: true
+
+    loki:
+      endpoint: "${LOKI_ENDPOINT}"
+      auth:
+        authenticator: basicauth/logs
+
+    loadbalancing:
+      protocol:
+        otlp:
+          tls:
+            insecure: true
+      resolver:
+        dns:
+          hostname: bdrck-traces-gateway-otel-col-headless-ctrlpln.observability.svc.cluster.local
+          port: 4317
+
+  processors:
+
+    memory_limiter:
+      check_interval: 1s
+      limit_percentage: 85
+      spike_limit_percentage: 10
+
+    batch:
+      send_batch_size: 10000
+      send_batch_max_size: 12000
+      timeout: 600ms
+
+  service:
+    extensions: [basicauth/metrics, basicauth/logs, health_check, memory_ballast]
+    pipelines:
+      metrics:
+        receivers: [otlp, prometheus]
+        processors: [memory_limiter, k8sattributes, batch]
+        exporters: [prometheusremotewrite]
+      traces:
+        processors: [k8sattributes, batch]
+        exporters: [loadbalancing]
+    telemetry:
+      metrics:
+        level: detailed
+        address: ":8888"
+      logs:
+        encoding: json

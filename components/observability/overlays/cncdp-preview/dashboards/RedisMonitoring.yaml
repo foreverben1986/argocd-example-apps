@@ -1,0 +1,1968 @@
+apiVersion: oss.grafana.crossplane.io/v1alpha1
+kind: Dashboard
+metadata:
+  name: redis-monitoring
+spec:
+  providerConfigRef:
+    name: grafana-cloud-provider-config
+  forProvider:
+    folder: "Bedrock-IAC"
+    configJson: |
+      {
+        "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "description": "This dashboard is for monitoring redis (memorystore) for bedrock projects",
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": 220,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+      {
+      "datasource": {
+        "type": "stackdriver",
+        "uid": "$${datasource}"
+      },
+      "description": "Uptime of the currently running Redis server process",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.3.0-63137",
+      "targets": [
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "A",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/server/uptime"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "none",
+            "projectName": "$project"
+          }
+        }
+      ],
+      "title": "Instance Uptime",
+      "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "$${datasource}"
+        },
+      "description": "CPU usage time per minute used by the Redis server, broken down by the system/user space and parent/child relationship. CPU seconds shows a total of all threads for the redis server main process. If you want to see the CPU usage for the main thread only, you can view the Main Thread CPU Seconds metric.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "A",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/stats/cpu_utilization"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "rate",
+            "projectName": "$project"
+          }
+        }
+      ],
+      "title": "CPU seconds",
+      "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "$${datasource}"
+        },
+      "description": "The ratio of successful Redis database calls and unsuccessful calls. A call is successful when the Redis database returns the value which the caller requested. A higher cache-hit ratio means the cache is being more fully utilized, which is beneficial for your application.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "A",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/stats/cache_hit_ratio"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "none",
+            "projectName": "$project"
+          }
+        }
+      ],
+      "title": "Cache Hit Ratio",
+      "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "$${datasource}"
+        },
+      "description": "\tThe number of bytes that have not been replicated to the replica. This is the difference between replication byte offset (primary) and replication byte offset (replica). You will observe an increase in bytes pending as the primary replicates to the replica during a failover.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "A",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/replication/offset_diff"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "none",
+            "projectName": "$project"
+          }
+        }
+      ],
+      "title": "Bytes pending replication",
+      "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "$${datasource}"
+        },
+      "description": "The number of Redis commands made per minute on your Redis instance. These include all open source Redis commands such as SET, GET, HSET, etc. This metric does not count Memorystore for Redis commands like 'create', 'update', etc.\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "A",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/commands/calls"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "rate",
+            "projectName": "$project"
+          }
+        }
+      ],
+      "title": "Calls",
+      "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "$${datasource}"
+        },
+      "description": "Connected clients: The number of clients connected to the Redis instance.\nBlocked Clients: Number of blocked clients.\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "A",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/clients/connected"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "none",
+            "projectName": "$project"
+          }
+        },
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "B",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/clients/blocked"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "none",
+            "projectName": "$project"
+          }
+        }
+      ],
+      "title": "Connected/Blocked Clients",
+      "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "$${datasource}"
+        },
+      "description": "Evicted keys: The number of keys evicted due to the maxmemory limit.\nExpired keys: The number of keys that have an expiration set in this instance. If empty, the chart for this metric displays \"no data\".",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "A",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/stats/evicted_keys"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "rate",
+            "projectName": "$project"
+          }
+        },
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "B",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/stats/expired_keys"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "rate",
+            "projectName": "$project"
+          }
+        }
+      ],
+      "title": "Evicted keys/ Expired keys",
+      "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "$${datasource}"
+        },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "A",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/keyspace/keys"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "none",
+            "projectName": "$project"
+          }
+        },
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "B",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/keyspace/keys_with_expiration"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "none",
+            "projectName": "$project"
+          }
+        }
+      ],
+      "title": "Keys in database",
+      "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "$${datasource}"
+        },
+      "description": "Memory usage compared to the maxmemory limit for your instance.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "A",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/stats/memory/usage"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "none",
+            "projectName": "$project"
+          }
+        },
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "B",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/stats/memory/maxmemory"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "none",
+            "projectName": "$project"
+          }
+        }
+      ],
+      "title": "Max memory / Memory usage",
+      "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "$${datasource}"
+        },
+      "description": "Number of bytes sent and received by the instance over a given period.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "redis.googleapis.com/stats/network_traffic projects/non-bedrock-sandbox/locations/us-central1/instances/bytestream"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "stackdriver",
+            "uid": "$${datasource}"
+          },
+          "queryType": "timeSeriesList",
+          "refId": "A",
+          "timeSeriesList": {
+            "alignmentPeriod": "cloud-monitoring-auto",
+            "crossSeriesReducer": "REDUCE_NONE",
+            "filters": [
+              "metric.label.role",
+              "=~",
+              "$role",
+              "AND",
+              "resource.label.instance_id",
+              "=~",
+              "$redis_instance",
+              "AND",
+              "metric.type",
+              "=",
+              "redis.googleapis.com/stats/network_traffic"
+            ],
+            "groupBys": [],
+            "perSeriesAligner": "ALIGN_MEAN",
+            "preprocessor": "rate",
+            "projectName": "$project"
+          }
+        }
+      ],
+      "title": "Network bytes in/out",
+      "type": "timeseries"
+      }
+      ],
+      "refresh": "",
+      "schemaVersion": 39,
+      "tags": [
+        "Redis",
+        "cloud-monitoring"
+      ],
+      "templating": {
+      "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "Google Cloud Monitoring",
+          "value": "def7a167-4198-4459-b2de-32382e903bed"
+        },
+        "description": "datasource",
+        "hide": 2,
+        "includeAll": false,
+        "label": "datasource",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "stackdriver",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "cvc-iam-preview",
+          "value": "cvc-iam-preview"
+        },
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "def7a167-4198-4459-b2de-32382e903bed"
+        },
+        "definition": "",
+        "hide": 0,
+        "includeAll": false,
+        "label": "project",
+        "multi": false,
+        "name": "project",
+        "options": [],
+        "query": {
+          "labelKey": "",
+          "loading": false,
+          "projectName": "prj-bdrck-preview-ctrlpln",
+          "projects": [
+            {
+              "label": "cvc-gms-preview",
+              "value": "cvc-gms-preview"
+            },
+            {
+              "label": "cvc-assets-service-preview",
+              "value": "cvc-assets-service-preview"
+            },
+            {
+              "label": "cvc-account-service-preview",
+              "value": "cvc-account-service-preview"
+            },
+            {
+              "label": "cvc-data-key-service-preview",
+              "value": "cvc-data-key-service-preview"
+            },
+            {
+              "label": "cvc-iam-preview",
+              "value": "cvc-iam-preview"
+            },
+            {
+              "label": "cvc-homing-pigeon-preview",
+              "value": "cvc-homing-pigeon-preview"
+            },
+            {
+              "label": "cvc-sw-access-service-preview",
+              "value": "cvc-sw-access-service-preview"
+            },
+            {
+              "label": "prj-bdrck-live-wrkld",
+              "value": "prj-bdrck-live-wrkld-a12c"
+            },
+            {
+              "label": "prj-bdrck-preview-wrkld",
+              "value": "prj-bdrck-preview-wrkld"
+            },
+            {
+              "label": "prj-bdrck-live-ctrlpln",
+              "value": "prj-bdrck-live-ctrlpln-7748"
+            },
+            {
+              "label": "prj-bdrck-preview-ctrlpln",
+              "value": "prj-bdrck-preview-ctrlpln"
+            }
+          ],
+          "refId": "CloudMonitoringVariableQueryEditor-VariableQuery",
+          "selectedMetricType": "actions.googleapis.com/smarthome_action/camerastream/first_frame_latencies",
+          "selectedQueryType": "projects",
+          "selectedSLOService": "",
+          "selectedService": "actions.googleapis.com",
+          "sloServices": [
+            {
+              "label": "app",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-app"
+            },
+            {
+              "label": "approver",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-approver"
+            },
+            {
+              "label": "entity-publisher",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-entity-publisher"
+            },
+            {
+              "label": "groups-manager",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-groups-manager"
+            },
+            {
+              "label": "tracer",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-tracer"
+            },
+            {
+              "label": "validator",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-validator"
+            },
+            {
+              "label": "worker",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-worker"
+            },
+            {
+              "label": "oauth2-proxy",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-portal-oauth2-proxy"
+            },
+            {
+              "label": "portal",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-portal-portal"
+            },
+            {
+              "label": "bedrock-bedrock-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-bedrock-gateway-istio"
+            },
+            {
+              "label": "bedrock-cvc-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-cvc-gateway-istio"
+            },
+            {
+              "label": "bedrock-elps-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-elps-gateway-istio"
+            },
+            {
+              "label": "bedrock-fpcpl-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-fpcpl-gateway-istio"
+            },
+            {
+              "label": "bedrock-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-gateway-istio"
+            },
+            {
+              "label": "bedrock-gateway-mtls-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-gateway-mtls-istio"
+            },
+            {
+              "label": "istio-eastwestgateway",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-istio-system-istio-eastwestgateway"
+            },
+            {
+              "label": "istio-ingressgateway",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-istio-system-istio-ingressgateway"
+            },
+            {
+              "label": "bookinfo-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-bookinfo-gateway-istio"
+            },
+            {
+              "label": "details",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-details"
+            },
+            {
+              "label": "details-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-details-v1"
+            },
+            {
+              "label": "hello",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-hello"
+            },
+            {
+              "label": "mongodb",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-mongodb"
+            },
+            {
+              "label": "mysqldb",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-mysqldb"
+            },
+            {
+              "label": "productpage",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-productpage"
+            },
+            {
+              "label": "productpage-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-productpage-v1"
+            },
+            {
+              "label": "ratings",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-ratings"
+            },
+            {
+              "label": "ratings-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-ratings-v1"
+            },
+            {
+              "label": "reviews",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews"
+            },
+            {
+              "label": "reviews-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews-v1"
+            },
+            {
+              "label": "reviews-v2",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews-v2"
+            },
+            {
+              "label": "reviews-v3",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews-v3"
+            }
+          ]
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "projects/cvc-iam-preview/locations/us-central1/instances/cvc-iam-iam-redis",
+          "value": "projects/cvc-iam-preview/locations/us-central1/instances/cvc-iam-iam-redis"
+        },
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "def7a167-4198-4459-b2de-32382e903bed"
+        },
+        "definition": "",
+        "hide": 0,
+        "includeAll": false,
+        "label": "redis_instance",
+        "multi": true,
+        "name": "redis_instance",
+        "options": [],
+        "query": {
+          "labelKey": "resource.label.instance_id",
+          "loading": false,
+          "projectName": "$project",
+          "projects": [
+            {
+              "label": "cvc-gms-preview",
+              "value": "cvc-gms-preview"
+            },
+            {
+              "label": "cvc-assets-service-preview",
+              "value": "cvc-assets-service-preview"
+            },
+            {
+              "label": "cvc-account-service-preview",
+              "value": "cvc-account-service-preview"
+            },
+            {
+              "label": "cvc-data-key-service-preview",
+              "value": "cvc-data-key-service-preview"
+            },
+            {
+              "label": "cvc-iam-preview",
+              "value": "cvc-iam-preview"
+            },
+            {
+              "label": "cvc-homing-pigeon-preview",
+              "value": "cvc-homing-pigeon-preview"
+            },
+            {
+              "label": "cvc-sw-access-service-preview",
+              "value": "cvc-sw-access-service-preview"
+            },
+            {
+              "label": "prj-bdrck-live-wrkld",
+              "value": "prj-bdrck-live-wrkld-a12c"
+            },
+            {
+              "label": "prj-bdrck-preview-wrkld",
+              "value": "prj-bdrck-preview-wrkld"
+            },
+            {
+              "label": "prj-bdrck-live-ctrlpln",
+              "value": "prj-bdrck-live-ctrlpln-7748"
+            },
+            {
+              "label": "prj-bdrck-preview-ctrlpln",
+              "value": "prj-bdrck-preview-ctrlpln"
+            }
+          ],
+          "refId": "CloudMonitoringVariableQueryEditor-VariableQuery",
+          "selectedMetricType": "redis.googleapis.com/clients/connected",
+          "selectedQueryType": "labelValues",
+          "selectedSLOService": "",
+          "selectedService": "redis.googleapis.com",
+          "sloServices": [
+            {
+              "label": "app",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-app"
+            },
+            {
+              "label": "approver",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-approver"
+            },
+            {
+              "label": "entity-publisher",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-entity-publisher"
+            },
+            {
+              "label": "groups-manager",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-groups-manager"
+            },
+            {
+              "label": "tracer",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-tracer"
+            },
+            {
+              "label": "validator",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-validator"
+            },
+            {
+              "label": "worker",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-worker"
+            },
+            {
+              "label": "oauth2-proxy",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-portal-oauth2-proxy"
+            },
+            {
+              "label": "portal",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-portal-portal"
+            },
+            {
+              "label": "bedrock-bedrock-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-bedrock-gateway-istio"
+            },
+            {
+              "label": "bedrock-cvc-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-cvc-gateway-istio"
+            },
+            {
+              "label": "bedrock-elps-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-elps-gateway-istio"
+            },
+            {
+              "label": "bedrock-fpcpl-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-fpcpl-gateway-istio"
+            },
+            {
+              "label": "bedrock-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-gateway-istio"
+            },
+            {
+              "label": "bedrock-gateway-mtls-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-gateway-mtls-istio"
+            },
+            {
+              "label": "istio-eastwestgateway",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-istio-system-istio-eastwestgateway"
+            },
+            {
+              "label": "istio-ingressgateway",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-istio-system-istio-ingressgateway"
+            },
+            {
+              "label": "bookinfo-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-bookinfo-gateway-istio"
+            },
+            {
+              "label": "details",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-details"
+            },
+            {
+              "label": "details-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-details-v1"
+            },
+            {
+              "label": "hello",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-hello"
+            },
+            {
+              "label": "mongodb",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-mongodb"
+            },
+            {
+              "label": "mysqldb",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-mysqldb"
+            },
+            {
+              "label": "productpage",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-productpage"
+            },
+            {
+              "label": "productpage-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-productpage-v1"
+            },
+            {
+              "label": "ratings",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-ratings"
+            },
+            {
+              "label": "ratings-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-ratings-v1"
+            },
+            {
+              "label": "reviews",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews"
+            },
+            {
+              "label": "reviews-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews-v1"
+            },
+            {
+              "label": "reviews-v2",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews-v2"
+            },
+            {
+              "label": "reviews-v3",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews-v3"
+            }
+          ]
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "primary",
+          "value": "primary"
+        },
+        "datasource": {
+          "type": "stackdriver",
+          "uid": "def7a167-4198-4459-b2de-32382e903bed"
+        },
+        "definition": "",
+        "hide": 0,
+        "includeAll": false,
+        "label": "role",
+        "multi": true,
+        "name": "role",
+        "options": [],
+        "query": {
+          "labelKey": "metric.label.role",
+          "loading": false,
+          "projectName": "$project",
+          "projects": [
+            {
+              "label": "cvc-gms-preview",
+              "value": "cvc-gms-preview"
+            },
+            {
+              "label": "cvc-assets-service-preview",
+              "value": "cvc-assets-service-preview"
+            },
+            {
+              "label": "cvc-account-service-preview",
+              "value": "cvc-account-service-preview"
+            },
+            {
+              "label": "cvc-data-key-service-preview",
+              "value": "cvc-data-key-service-preview"
+            },
+            {
+              "label": "cvc-iam-preview",
+              "value": "cvc-iam-preview"
+            },
+            {
+              "label": "cvc-homing-pigeon-preview",
+              "value": "cvc-homing-pigeon-preview"
+            },
+            {
+              "label": "cvc-sw-access-service-preview",
+              "value": "cvc-sw-access-service-preview"
+            },
+            {
+              "label": "prj-bdrck-live-wrkld",
+              "value": "prj-bdrck-live-wrkld-a12c"
+            },
+            {
+              "label": "prj-bdrck-preview-wrkld",
+              "value": "prj-bdrck-preview-wrkld"
+            },
+            {
+              "label": "prj-bdrck-live-ctrlpln",
+              "value": "prj-bdrck-live-ctrlpln-7748"
+            },
+            {
+              "label": "prj-bdrck-preview-ctrlpln",
+              "value": "prj-bdrck-preview-ctrlpln"
+            }
+          ],
+          "refId": "CloudMonitoringVariableQueryEditor-VariableQuery",
+          "selectedMetricType": "redis.googleapis.com/clients/connected",
+          "selectedQueryType": "labelValues",
+          "selectedSLOService": "",
+          "selectedService": "redis.googleapis.com",
+          "sloServices": [
+            {
+              "label": "app",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-app"
+            },
+            {
+              "label": "approver",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-approver"
+            },
+            {
+              "label": "entity-publisher",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-entity-publisher"
+            },
+            {
+              "label": "groups-manager",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-groups-manager"
+            },
+            {
+              "label": "tracer",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-tracer"
+            },
+            {
+              "label": "validator",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-validator"
+            },
+            {
+              "label": "worker",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-cli-worker"
+            },
+            {
+              "label": "oauth2-proxy",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-portal-oauth2-proxy"
+            },
+            {
+              "label": "portal",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-bedrock-portal-portal"
+            },
+            {
+              "label": "bedrock-bedrock-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-bedrock-gateway-istio"
+            },
+            {
+              "label": "bedrock-cvc-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-cvc-gateway-istio"
+            },
+            {
+              "label": "bedrock-elps-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-elps-gateway-istio"
+            },
+            {
+              "label": "bedrock-fpcpl-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-fpcpl-gateway-istio"
+            },
+            {
+              "label": "bedrock-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-gateway-istio"
+            },
+            {
+              "label": "bedrock-gateway-mtls-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-gateway-bedrock-gateway-mtls-istio"
+            },
+            {
+              "label": "istio-eastwestgateway",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-istio-system-istio-eastwestgateway"
+            },
+            {
+              "label": "istio-ingressgateway",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-istio-system-istio-ingressgateway"
+            },
+            {
+              "label": "bookinfo-gateway-istio",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-bookinfo-gateway-istio"
+            },
+            {
+              "label": "details",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-details"
+            },
+            {
+              "label": "details-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-details-v1"
+            },
+            {
+              "label": "hello",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-hello"
+            },
+            {
+              "label": "mongodb",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-mongodb"
+            },
+            {
+              "label": "mysqldb",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-mysqldb"
+            },
+            {
+              "label": "productpage",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-productpage"
+            },
+            {
+              "label": "productpage-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-productpage-v1"
+            },
+            {
+              "label": "ratings",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-ratings"
+            },
+            {
+              "label": "ratings-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-ratings-v1"
+            },
+            {
+              "label": "reviews",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews"
+            },
+            {
+              "label": "reviews-v1",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews-v1"
+            },
+            {
+              "label": "reviews-v2",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews-v2"
+            },
+            {
+              "label": "reviews-v3",
+              "value": "ist:prj-bdrck-preview-ctrlpln-location-us-central1-gke-bdrck-preview-sample-reviews-v3"
+            }
+          ]
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+        }
+      ]
+      },
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "timeRangeUpdatedDuringEditOrView": false,
+      "timepicker": {},
+      "timezone": "",
+      "title": "Redis Monitoring",
+      "uid": "d7f09c8d-7aa7-4d14-8826-9684be1cbe7cA",
+      "weekStart": ""
+      }
