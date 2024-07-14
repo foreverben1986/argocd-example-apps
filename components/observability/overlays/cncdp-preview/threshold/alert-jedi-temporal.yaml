@@ -1,0 +1,101 @@
+apiVersion: alerting.grafana.crossplane.io/v1alpha1
+kind: RuleGroup
+metadata:
+  annotations:
+    meta.upbound.io/example-id: kubevela-rg
+  labels:
+    testing.upbound.io/example-name: kubevela-rg
+  name: temporal
+spec:
+  providerConfigRef:
+    name: grafana-cloud-provider-config
+  forProvider:
+    folderSelector:
+      matchLabels:
+        testing.upbound.io/example-name: jedi
+    orgId: "1"
+    intervalSeconds: 120
+    name: temporal
+    rule:
+    #temporal persistence avaliablity is not 100%
+    - annotations:
+        description: "Please check database used by Temporal Persistence"
+        summary: "Temporal Persistence availability is not 100%"
+      condition: C
+      data:
+      - datasourceUid: "prometheus"
+        model: "{\"editorMode\":\"code\",\"expr\":\"100 - (sum (rate(persistence_errors_total[2m]) OR on() vector(0)) /sum (rate(persistence_requests_total[2m])) * 100)\",\"instant\":true,\"intervalMs\":1000,\"legendFormat\":\"__auto\",\"maxDataPoints\":43200,\"range\":false,\"refId\":\"A\"}"
+        queryType: ""
+        refId: A
+        relativeTimeRange:
+        - from: 300
+          to: 0
+      - datasourceUid: "__expr__"
+        model:  "{\"conditions\":[{\"evaluator\":{\"params\":[100],\"type\":\"gt\"},\"operator\":{\"type\":\"and\"},\"query\":{\"params\":[\"C\"]},\"reducer\":{\"params\":[],\"type\":\"last\"},\"type\":\"query\"}],\"datasource\":{\"type\":\"__expr__\",\"uid\":\"__expr__\"},\"expression\":\"A\",\"intervalMs\":1000,\"maxDataPoints\":43200,\"refId\":\"C\",\"type\":\"threshold\"}"
+        queryType: ""
+        refId: C
+        relativeTimeRange:
+        - from: 0
+          to: 0
+      noDataState: "NoData"
+      execErrState: "Error"
+      for: 2m
+      isPaused: false
+      name: TemporalPersistenceAvailabilityDecreases
+      labels: 
+        env: "preview"
+        team: "jedi"
+    - annotations:
+        description: ""
+        summary: "Temporal availability is decreasing"
+      condition: C
+      data:
+      - datasourceUid: "prometheus"
+        model: "{\"editorMode\":\"code\",\"expr\":\"100 - (sum(rate(service_errors_total[2m]) OR on() vector(0)) / sum(rate(service_requests_total[2m])) * 100)\",\"instant\":true,\"intervalMs\":1000,\"legendFormat\":\"__auto\",\"maxDataPoints\":43200,\"range\":false,\"refId\":\"A\"}"
+        queryType: ""
+        refId: A
+        relativeTimeRange:
+        - from: 300
+          to: 0
+      - datasourceUid: "__expr__"
+        model:  "{\"conditions\":[{\"evaluator\":{\"params\":[100],\"type\":\"gt\"},\"operator\":{\"type\":\"and\"},\"query\":{\"params\":[\"C\"]},\"reducer\":{\"params\":[],\"type\":\"last\"},\"type\":\"query\"}],\"datasource\":{\"type\":\"__expr__\",\"uid\":\"__expr__\"},\"expression\":\"A\",\"intervalMs\":1000,\"maxDataPoints\":43200,\"refId\":\"C\",\"type\":\"threshold\"}"
+        queryType: ""
+        refId: C
+        relativeTimeRange:
+        - from: 0
+          to: 0
+      noDataState: "NoData"
+      execErrState: "Error"
+      for: 2m
+      isPaused: false
+      name: TemporalAvailabilityDecreases
+      labels: 
+        env: "preview"
+        team: "jedi"
+    - annotations:
+        description: "Service: **{{ index $labels \"type\"}}**\nOperation:  **{{index $labels \"operation\"}}**\nErrorType: **{{index $labels \"error_type\"}}**"
+        summary: "Some errors occur in Temporal"
+      condition: C
+      data:
+      - datasourceUid: "prometheus"
+        model: "{\"disableTextWrap\":false,\"editorMode\":\"code\",\"expr\":\"sum by(error_type, type, operation) (irate(service_error_with_type_total[2m]))\",\"fullMetaSearch\":false,\"includeNullMetadata\":true,\"instant\":true,\"intervalMs\":1000,\"legendFormat\":\"__auto\",\"maxDataPoints\":43200,\"range\":false,\"refId\":\"A\",\"useBackend\":false}"
+        queryType: ""
+        refId: A
+        relativeTimeRange:
+        - from: 300
+          to: 0
+      - datasourceUid: "__expr__"
+        model:  "{\"conditions\":[{\"evaluator\":{\"params\":[0],\"type\":\"gt\"},\"operator\":{\"type\":\"and\"},\"query\":{\"params\":[\"C\"]},\"reducer\":{\"params\":[],\"type\":\"last\"},\"type\":\"query\"}],\"datasource\":{\"type\":\"__expr__\",\"uid\":\"__expr__\"},\"expression\":\"A\",\"intervalMs\":1000,\"maxDataPoints\":43200,\"refId\":\"C\",\"type\":\"threshold\"}"
+        queryType: ""
+        refId: C
+        relativeTimeRange:
+        - from: 0
+          to: 0
+      noDataState: "NoData"
+      execErrState: "Error"
+      for: 2m
+      isPaused: false
+      name: TemporalErrorOccur
+      labels: 
+        env: "preview"
+        team: "jedi"

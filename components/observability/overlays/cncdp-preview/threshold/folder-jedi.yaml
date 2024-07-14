@@ -1,0 +1,14 @@
+---
+apiVersion: oss.grafana.crossplane.io/v1alpha1
+kind: Folder
+metadata:
+  annotations:
+    meta.upbound.io/example-id: alerting/v1alpha1/rulegroup
+  labels:
+    testing.upbound.io/example-name: jedi
+  name: jedi
+spec:
+  forProvider:
+    title: jedi
+  providerConfigRef:
+     name: grafana-cloud-provider-config
